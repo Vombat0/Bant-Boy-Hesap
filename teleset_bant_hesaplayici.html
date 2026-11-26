@@ -1,0 +1,1501 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Teleset – Kablo Gruplarında Bant Tüketimi & BOM Hesaplayıcı</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            navy: {
+              850: '#132238',
+              900: '#0d192b',
+              950: '#08101c',
+            },
+            tealeng: {
+              500: '#007791',
+              600: '#005f73',
+              700: '#0a4a5c',
+            },
+            steel: {
+              50: '#f8fafc',
+              100: '#f1f5f9',
+              200: '#e2e8f0',
+              300: '#cbd5e1',
+              500: '#64748b',
+              700: '#334155',
+              800: '#1e293b',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #f1f5f9;
+      color: #0f172a;
+    }
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      opacity: 1;
+    }
+    .tab-active {
+      border-bottom: 3px solid #007791;
+      color: #0d192b;
+      font-weight: 600;
+      background-color: #ffffff;
+    }
+    /* PDF / Yazdırma Görünümü Ayarları */
+    @media print {
+      body {
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      .no-print, nav, #toast-container {
+        display: none !important;
+      }
+      header {
+        background-color: #0d192b !important;
+        color: #ffffff !important;
+        box-shadow: none !important;
+      }
+      main {
+        max-width: 100% !important;
+        padding: 12px 0 !important;
+      }
+      details {
+        display: block !important;
+      }
+      details > summary {
+        list-style: none !important;
+      }
+      .shadow-sm, .shadow-md {
+        box-shadow: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-tealeng-500 selection:text-white">
+
+  <!-- Üst Başlık ve Hızlı Örnek Seçici -->
+  <header class="bg-navy-900 text-white shadow-md border-b border-steel-700">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <div class="flex items-start sm:items-center gap-3">
+        <div class="w-10 h-10 rounded-lg bg-tealeng-500 flex items-center justify-center shrink-0 shadow-inner">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 8h16M4 16h16M8 4v16M16 4v16" />
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <h1 class="text-lg sm:text-xl font-bold tracking-tight">Kablo Gruplarında Bant Tüketimi & BOM Hesaplayıcı</h1>
+            <span class="text-[11px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-tealeng-600/40 text-cyan-200 border border-cyan-500/30">Rev. 02</span>
+          </div>
+          <p class="text-xs sm:text-sm text-steel-300 mt-0.5">Sık, Seyrek ve Noktasal Bantlama | Kolay Kullanımlı Mühendislik & Üretim Aracı</p>
+        </div>
+      </div>
+
+      <!-- Hızlı Örnek Yükleme Seçici & PDF Çıktı Butonu -->
+      <div class="no-print flex flex-wrap items-center gap-2">
+        <label for="preset-select" class="text-xs text-steel-300 font-medium">Hazır Eğitim Örneği:</label>
+        <div class="flex flex-wrap items-center gap-1.5">
+          <select id="preset-select" class="bg-navy-850 border border-steel-600 text-white text-xs sm:text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-400">
+            <option value="ex4">Örnek 4: Karma Çaplı Demet (D=10 & D=4 mm)</option>
+            <option value="ex1">Örnek 1: Sık Bantlama, Gerçek %0 Bindirme</option>
+            <option value="ex2">Örnek 2: Sık Bantlama, Gerçek %50 Bindirme</option>
+            <option value="ex3">Örnek 3: Seyrek Bantlama, Ölçülen Adım (P=30)</option>
+            <option value="ex6_var">Bölüm 6: Değişken Çap (Her İki Bölge P=15 mm)</option>
+            <option value="spot_nb">Özel: Noktasal Bantlama (NB - D=10 mm, 2 Tur)</option>
+          </select>
+          <button type="button" onclick="loadSelectedPreset()" class="bg-tealeng-500 hover:bg-tealeng-600 active:scale-[0.99] text-white text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-lg transition shadow-sm cursor-pointer">
+            Yükle
+          </button>
+          <button type="button" onclick="exportToPdf()" class="bg-white hover:bg-steel-100 active:scale-[0.99] text-navy-900 text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-lg transition shadow-sm flex items-center gap-1.5 cursor-pointer" title="Raporu PDF olarak kaydet veya yazdır">
+            <svg class="w-4 h-4 text-rose-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z"/>
+            </svg>
+            PDF Çıktı Al
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sekme Navigasyonu (3 Net Sekme) -->
+    <nav class="no-print bg-steel-100 border-t border-steel-300">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 flex overflow-x-auto no-scrollbar">
+        <button type="button" id="tab-btn-calc" onclick="switchTab('calc')" class="tab-active px-4 sm:px-6 py-3 text-xs sm:text-sm whitespace-nowrap transition flex items-center gap-2 border-r border-steel-200 cursor-pointer">
+          <span class="w-2 h-2 rounded-full bg-tealeng-500"></span>
+          1. Bant Boyu Hesapla (BOM)
+        </button>
+        <button type="button" id="tab-btn-prod" onclick="switchTab('prod')" class="px-4 sm:px-6 py-3 text-xs sm:text-sm text-steel-700 hover:bg-white/70 whitespace-nowrap transition flex items-center gap-2 border-r border-steel-200 cursor-pointer">
+          <span>2. Seri Üretim & Rulo Maliyeti</span>
+        </button>
+        <button type="button" id="tab-btn-verify" onclick="switchTab('verify')" class="px-4 sm:px-6 py-3 text-xs sm:text-sm text-steel-700 hover:bg-white/70 whitespace-nowrap transition flex items-center gap-2 cursor-pointer">
+          <span>3. Doğrulama & Ters Çap</span>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Bildirim Alanı (Toast) -->
+  <div id="toast-container" class="no-print fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm"></div>
+
+  <!-- Ana İçerik -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6">
+
+    <!-- =====================================================================
+         SEKME 1: BANT BOYU HESAPLA (BOM)
+    ====================================================================== -->
+    <section id="view-calc" class="space-y-5">
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+        <!-- Sol Kolon: Bölge Kartları + Genel Sabitleme ve Fire -->
+        <div class="lg:col-span-7 space-y-4">
+
+          <!-- Bölge Kartları Başlığı -->
+          <div class="flex flex-wrap items-center justify-between gap-2 bg-white px-4 py-3 rounded-xl border border-steel-200 shadow-sm">
+            <div>
+              <h2 class="text-base font-bold text-navy-900">Kablo Demeti Sarım Bölgeleri</h2>
+              <p class="text-xs text-steel-500">Önce sarım tipini seçin, ardından ölçüleri girin. Farklı çaplar için yeni bölge ekleyin.</p>
+            </div>
+            <div class="no-print flex items-center gap-2">
+              <button type="button" onclick="resetToCleanSingleZone()" class="bg-steel-100 hover:bg-steel-200 text-navy-900 border border-steel-300 text-xs font-semibold px-3 py-2 rounded-lg transition cursor-pointer">
+                Sıfırla
+              </button>
+              <button type="button" onclick="addZone()" class="bg-navy-900 hover:bg-navy-850 text-white text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-lg transition flex items-center gap-1.5 shadow-sm cursor-pointer">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                Yeni Bölge Ekle
+              </button>
+            </div>
+          </div>
+
+          <!-- Dinamik Bölge Listesi -->
+          <div id="zones-container" class="space-y-4"></div>
+
+          <!-- Genel Sabitleme ve Fire Kartı -->
+          <div class="bg-white rounded-xl border border-steel-200 p-4 sm:p-5 shadow-sm">
+            <div class="flex items-center justify-between border-b border-steel-100 pb-3 mb-4">
+              <div>
+                <h3 class="text-sm font-bold text-navy-900">Genel Uç Sabitlemeleri & Fire İlavesi</h3>
+                <p class="text-xs text-steel-500">Başlangıç, bitiş veya çap geçişindeki çevresel turlar ve fire oranı.</p>
+              </div>
+              <span class="text-xs font-mono bg-steel-100 text-steel-700 px-2.5 py-1 rounded-md border border-steel-200">T_toplam</span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <!-- Genel Ek Sabitleme Turları -->
+              <div class="bg-steel-50 p-3.5 rounded-lg border border-steel-200">
+                <div class="flex items-center justify-between mb-1">
+                  <label class="block text-xs font-semibold text-navy-900">Genel Ek Sabitleme Turu (n)</label>
+                  <div class="no-print flex gap-1">
+                    <button type="button" onclick="setGlobalTurns(0)" class="text-[11px] font-mono bg-white hover:bg-steel-200 border border-steel-300 px-1.5 py-0.5 rounded cursor-pointer">+0</button>
+                    <button type="button" onclick="setGlobalTurns(1)" class="text-[11px] font-mono bg-white hover:bg-steel-200 border border-steel-300 px-1.5 py-0.5 rounded cursor-pointer">+1</button>
+                    <button type="button" onclick="setGlobalTurns(2)" class="text-[11px] font-mono bg-white hover:bg-steel-200 border border-steel-300 px-1.5 py-0.5 rounded cursor-pointer">+2</button>
+                  </div>
+                </div>
+                <p class="text-[11px] text-steel-500 mb-2">Örn. başlangıçta 1 tur + bitişte 1 tur = 2 tur.</p>
+                <div class="flex gap-2">
+                  <div class="flex-1">
+                    <span class="text-[11px] text-steel-500 block mb-0.5">Tur Adedi (n)</span>
+                    <input type="number" id="global-n" min="0" step="0.5" value="2" oninput="recalculateAll()" class="w-full font-mono text-sm bg-white border border-steel-300 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-tealeng-500">
+                  </div>
+                  <div class="flex-1">
+                    <span class="text-[11px] text-steel-500 block mb-0.5">Uygulanan Çap</span>
+                    <select id="global-n-mode" onchange="recalculateAll()" class="w-full text-xs bg-white border border-steel-300 rounded-lg px-2 py-2 focus:outline-none focus:ring-2 focus:ring-tealeng-500">
+                      <option value="first">1. Bölge Çapı (D1)</option>
+                      <option value="avg_ends">Başlangıç & Bitiş Ortalaması</option>
+                      <option value="custom">Özel Çap Gir (mm)</option>
+                    </select>
+                  </div>
+                </div>
+                <div id="global-custom-d-wrap" class="mt-2 hidden">
+                  <span class="text-[11px] text-steel-500 block mb-0.5">Özel Sabitleme Çapı (mm)</span>
+                  <input type="number" id="global-custom-d" min="0.1" step="0.1" value="10" oninput="recalculateAll()" class="w-full font-mono text-sm bg-white border border-steel-300 rounded-lg px-2.5 py-1.5">
+                </div>
+              </div>
+
+              <!-- Fire İlavesi -->
+              <div class="bg-steel-50 p-3.5 rounded-lg border border-steel-200">
+                <div class="flex items-center justify-between mb-1">
+                  <label class="block text-xs font-semibold text-navy-900">Fire Oranı f (%)</label>
+                  <div class="no-print flex gap-1">
+                    <button type="button" onclick="setScrapPct(0)" class="text-[11px] font-mono bg-white hover:bg-steel-200 border border-steel-300 px-1.5 py-0.5 rounded cursor-pointer">%0</button>
+                    <button type="button" onclick="setScrapPct(3)" class="text-[11px] font-mono bg-white hover:bg-steel-200 border border-steel-300 px-1.5 py-0.5 rounded cursor-pointer">%3</button>
+                    <button type="button" onclick="setScrapPct(5)" class="text-[11px] font-mono bg-white hover:bg-steel-200 border border-steel-300 px-1.5 py-0.5 rounded cursor-pointer">%5</button>
+                  </div>
+                </div>
+                <p class="text-[11px] text-steel-500 mb-2">Standart eğitim varsayımı %3'tür.</p>
+                <div class="flex gap-2">
+                  <div class="w-24">
+                    <span class="text-[11px] text-steel-500 block mb-0.5">Fire (%)</span>
+                    <input type="number" id="scrap-pct" min="0" max="95" step="0.1" value="3" oninput="recalculateAll()" class="w-full font-mono text-sm bg-white border border-steel-300 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-tealeng-500">
+                  </div>
+                  <div class="flex-1">
+                    <span class="text-[11px] text-steel-500 block mb-0.5">Hesaplama Yöntemi</span>
+                    <select id="scrap-mode" onchange="recalculateAll()" class="w-full text-xs bg-white border border-steel-300 rounded-lg px-2 py-2 focus:outline-none focus:ring-2 focus:ring-tealeng-500">
+                      <option value="net">Net Üzerine İlave: × (1 + f)</option>
+                      <option value="gross">Brüt Üzerinden: ÷ (1 − f)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Sağ Kolon: Canlı Sonuçlar, Şema & Tek Tıkla Excel -->
+        <div class="lg:col-span-5 space-y-4">
+
+          <!-- Özet Sonuç Kartı -->
+          <div class="bg-white rounded-xl border-2 border-tealeng-500/40 p-5 shadow-sm">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-bold uppercase tracking-wider text-tealeng-700">Toplam Bant Tüketimi</span>
+              <span id="summary-zone-count" class="text-xs font-mono bg-tealeng-500/10 text-tealeng-700 px-2.5 py-0.5 rounded-full font-semibold">1 Bölge</span>
+            </div>
+
+            <!-- Ana Metrikler -->
+            <div class="grid grid-cols-2 gap-3 mb-4">
+              <div class="bg-steel-50 p-3.5 rounded-xl border border-steel-200">
+                <div class="text-xs text-steel-500 font-medium">Net Toplam (Firesiz)</div>
+                <div id="res-net-total" class="text-2xl font-mono font-bold text-navy-900 mt-1">0,000 <span class="text-sm font-normal text-steel-500">m</span></div>
+                <div id="res-net-mm" class="text-[11px] font-mono text-steel-500 mt-0.5">0,0 mm</div>
+              </div>
+              <div class="bg-tealeng-500 text-white p-3.5 rounded-xl shadow-sm">
+                <div class="text-xs text-cyan-100 font-medium">BOM Değeri (Fire Dahil)</div>
+                <div id="res-gross-total" class="text-2xl font-mono font-bold mt-1">0,000 <span class="text-sm font-normal text-cyan-100">m/adet</span></div>
+                <div id="res-scrap-added" class="text-[11px] font-mono text-cyan-100 mt-0.5">+0,000 m fire</div>
+              </div>
+            </div>
+
+            <!-- Alt Kırılım -->
+            <div class="space-y-2 text-xs border-t border-steel-100 pt-3">
+              <div class="flex justify-between text-steel-700">
+                <span>Bölgeler Toplamı:</span>
+                <span id="res-spiral-only" class="font-mono font-semibold">0,000 m</span>
+              </div>
+              <div class="flex justify-between text-steel-700">
+                <span>Ek Sabitleme Turları:</span>
+                <span id="res-fixing-only" class="font-mono font-semibold">0,000 m</span>
+              </div>
+              <div class="flex justify-between text-steel-700">
+                <span>Toplam Sarım Turu (N):</span>
+                <span id="res-total-turns" class="font-mono font-semibold">0,00 tur</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Canlı SVG Görselleştirme (Kablo Demeti Şeması + Açılır Pisagor) -->
+          <div class="bg-white rounded-xl border border-steel-200 p-4 shadow-sm">
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-navy-900">Kablo Demeti & Sarım Görünümü</h3>
+              <span class="text-[11px] text-steel-500">Canlı Önizleme</span>
+            </div>
+            <div class="bg-steel-50 rounded-lg border border-steel-200 p-2 overflow-hidden">
+              <svg id="harness-svg" viewBox="0 0 520 125" class="w-full h-auto"></svg>
+            </div>
+
+            <!-- İsteğe Bağlı Açılır Silindir Yüzey Açınımı -->
+            <details class="no-print mt-3 border-t border-steel-100 pt-2.5 group">
+              <summary class="text-xs font-semibold text-tealeng-700 hover:text-tealeng-600 cursor-pointer flex items-center justify-between list-none">
+                <span>Geometrik Açınım Detayı (Pisagor Diyagramı)</span>
+                <span class="text-[11px] bg-steel-100 px-2 py-0.5 rounded text-steel-700 group-open:hidden">Göster ▾</span>
+                <span class="text-[11px] bg-steel-100 px-2 py-0.5 rounded text-steel-700 hidden group-open:inline">Gizle ▴</span>
+              </summary>
+              <div class="mt-2 bg-steel-50 rounded-lg border border-steel-200 p-2 overflow-hidden">
+                <svg id="unfold-svg" viewBox="0 0 520 155" class="w-full h-auto"></svg>
+              </div>
+            </details>
+          </div>
+
+          <!-- Türkçe Excel & BOM Formül Kutusu (İsteğe Bağlı Açılır) -->
+          <details class="no-print bg-navy-900 text-white rounded-xl border border-steel-700 p-4 shadow-sm group">
+            <summary class="flex items-center justify-between gap-2 cursor-pointer list-none">
+              <div>
+                <h3 class="text-xs font-bold uppercase tracking-wider text-cyan-300">Türkçe Excel Formülü (BOM)</h3>
+                <p class="text-[11px] text-steel-300 mt-0.5">1. bölge için doğrudan Excel'e yapıştırılabilir formül</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <button type="button" onclick="event.stopPropagation(); copyExcelFormula()" class="bg-tealeng-500 hover:bg-tealeng-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition cursor-pointer">
+                  Kopyala
+                </button>
+                <span class="text-[11px] text-steel-300 group-open:hidden">Aç ▾</span>
+                <span class="text-[11px] text-steel-300 hidden group-open:inline">Gizle ▴</span>
+              </div>
+            </summary>
+            <div class="mt-3 pt-3 border-t border-steel-700">
+              <div class="bg-navy-950 border border-steel-700 rounded-lg p-2.5 font-mono text-[11px] text-emerald-300 overflow-x-auto whitespace-nowrap" id="excel-formula-display">
+                =(B2/C2*KAREKÖK((Pİ()*A2)^2+C2^2)+D2*Pİ()*A2)*(1+E2)/1000
+              </div>
+              <p class="text-[11px] text-steel-400 mt-1.5">Hücreler: A2=Çap D, B2=Boy L, C2=Adım P, D2=Ek Tur n, E2=Fire f</p>
+            </div>
+          </details>
+
+        </div>
+      </div>
+
+      <!-- Detaylı Bölge Döküm Tablosu -->
+      <details id="bom-table-details" open class="bg-white rounded-xl border border-steel-200 shadow-sm overflow-hidden group">
+        <summary class="px-5 py-3.5 border-b border-steel-200 flex flex-wrap items-center justify-between gap-2 bg-steel-50 cursor-pointer list-none">
+          <div class="flex items-center gap-2">
+            <div>
+              <h3 class="text-sm font-bold text-navy-900">Bölge Bazlı Hesap Dökümü (BOM Tablosu)</h3>
+              <p class="text-xs text-steel-500">Tüm ara değerler yuvarlanmadan hesaplanır; özet kopyalamak veya PDF almak için butonları kullanın.</p>
+            </div>
+          </div>
+          <div class="no-print flex items-center gap-2">
+            <button type="button" onclick="event.stopPropagation(); exportToPdf()" class="text-xs font-semibold text-white bg-tealeng-600 hover:bg-tealeng-700 px-3 py-1.5 rounded-lg transition flex items-center gap-1 cursor-pointer">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z"/></svg>
+              PDF Kaydet
+            </button>
+            <button type="button" onclick="event.stopPropagation(); copySummaryTable()" class="text-xs font-semibold text-navy-900 bg-white hover:bg-steel-100 border border-steel-300 px-3 py-1.5 rounded-lg transition cursor-pointer">
+              Özeti Kopyala
+            </button>
+            <span class="text-xs font-semibold text-tealeng-700 px-2 py-1 rounded bg-white border border-steel-200 group-open:hidden">Aç ▾</span>
+            <span class="text-xs font-semibold text-steel-500 px-2 py-1 rounded bg-white border border-steel-200 hidden group-open:inline">Gizle ▴</span>
+          </div>
+        </summary>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs sm:text-sm">
+            <thead>
+              <tr class="bg-steel-100 text-steel-700 border-b border-steel-200 text-xs uppercase">
+                <th class="py-2.5 px-4 font-semibold">Bölge / Kalem</th>
+                <th class="py-2.5 px-4 font-semibold">Sarım Tipi</th>
+                <th class="py-2.5 px-4 font-semibold text-right">Çap D (mm)</th>
+                <th class="py-2.5 px-4 font-semibold text-right">Boy L / Nokta</th>
+                <th class="py-2.5 px-4 font-semibold text-right">Adım P (mm)</th>
+                <th class="py-2.5 px-4 font-semibold text-right">Tur Sayısı N</th>
+                <th class="py-2.5 px-4 font-semibold text-right">Tüketim (m)</th>
+              </tr>
+            </thead>
+            <tbody id="breakdown-tbody" class="divide-y divide-steel-100 font-mono text-xs sm:text-sm">
+            </tbody>
+          </table>
+        </div>
+      </details>
+
+    </section>
+
+    <!-- =====================================================================
+         SEKME 2: SERİ ÜRETİM, RULO İHTİYACI & MALİYET (Örnek 6)
+    ====================================================================== -->
+    <section id="view-prod" class="hidden space-y-6">
+      <div class="bg-white rounded-xl border border-steel-200 p-5 sm:p-6 shadow-sm">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-steel-100 pb-4 mb-5">
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-navy-900">Seri Üretim Rulo İhtiyacı ve Maliyet Analizi</h2>
+            <p class="text-xs text-steel-500">1. sekmedeki fire dahil birim BOM tüketimi otomatik olarak aktarılır.</p>
+          </div>
+          <button type="button" onclick="loadOrderExample6()" class="no-print text-xs font-semibold bg-steel-100 hover:bg-steel-200 text-navy-900 px-3 py-1.5 rounded-lg border border-steel-300 transition self-start cursor-pointer">
+            Örnek 6 Değerlerini Yükle (10.000 Adet)
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div class="bg-steel-50 p-3.5 rounded-xl border border-steel-200">
+            <label class="block text-xs font-semibold text-navy-900 mb-1">Birim BOM Tüketimi (m/adet)</label>
+            <input type="number" id="prod-unit-m" step="0.0001" min="0" value="1.5281" oninput="calcProduction()" class="w-full font-mono text-sm bg-white border border-steel-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-tealeng-500">
+            <button type="button" onclick="syncUnitFromCalc()" class="no-print mt-1.5 text-[11px] text-tealeng-700 font-semibold hover:underline cursor-pointer">← 1. Sekmeden Güncel Değeri Al</button>
+          </div>
+
+          <div class="bg-steel-50 p-3.5 rounded-xl border border-steel-200">
+            <label class="block text-xs font-semibold text-navy-900 mb-1">Sipariş Miktarı (Adet)</label>
+            <input type="number" id="prod-qty" step="1" min="1" value="10000" oninput="calcProduction()" class="w-full font-mono text-sm bg-white border border-steel-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-tealeng-500">
+          </div>
+
+          <div class="bg-steel-50 p-3.5 rounded-xl border border-steel-200">
+            <label class="block text-xs font-semibold text-navy-900 mb-1">Nominal Rulo Boyu (m/rulo)</label>
+            <input type="number" id="prod-roll-len" step="1" min="1" value="25" oninput="calcProduction()" class="w-full font-mono text-sm bg-white border border-steel-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-tealeng-500">
+          </div>
+
+          <div class="bg-steel-50 p-3.5 rounded-xl border border-steel-200">
+            <label class="block text-xs font-semibold text-navy-900 mb-1">Birim Bant Fiyatı (€ / m)</label>
+            <input type="number" id="prod-price" step="0.001" min="0" value="0.08" oninput="calcProduction()" class="w-full font-mono text-sm bg-white border border-steel-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-tealeng-500">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-navy-900 text-white p-4 rounded-xl">
+            <div class="text-xs text-steel-300">Toplam Bant İhtiyacı</div>
+            <div id="prod-res-meters" class="text-2xl font-mono font-bold mt-1 text-cyan-300">15.281,20 m</div>
+          </div>
+
+          <div class="bg-tealeng-600 text-white p-4 rounded-xl">
+            <div class="text-xs text-cyan-100">Rulo İhtiyacı (Yukarı Yuvarla)</div>
+            <div id="prod-res-rolls" class="text-2xl font-mono font-bold mt-1">612 rulo</div>
+          </div>
+
+          <div class="bg-steel-50 p-4 rounded-xl border border-steel-200">
+            <div class="text-xs text-steel-500 font-medium">Birim Bant Maliyeti</div>
+            <div id="prod-res-unit-cost" class="text-2xl font-mono font-bold text-navy-900 mt-1">0,1222 €/adet</div>
+          </div>
+
+          <div class="bg-steel-50 p-4 rounded-xl border border-steel-200">
+            <div class="text-xs text-steel-500 font-medium">Toplam Tüketim Maliyeti</div>
+            <div id="prod-res-total-cost" class="text-2xl font-mono font-bold text-navy-900 mt-1">1.222,50 €</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         SEKME 3: DOĞRULAMA & TERS ÇAP BULMA (Örnek 5 & Örnek 7)
+    ====================================================================== -->
+    <section id="view-verify" class="hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Sol: 10 Numune Doğrulama -->
+        <div class="lg:col-span-7 bg-white rounded-xl border border-steel-200 p-5 shadow-sm">
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-steel-100 pb-3 mb-4">
+            <div>
+              <h2 class="text-base font-bold text-navy-900">Üretim Doğrulama (10 Numune Analizi)</h2>
+              <p class="text-xs text-steel-500">Fiili ölçümler ile teorik BOM değerini karşılaştırın.</p>
+            </div>
+            <button type="button" onclick="loadSampleExample7()" class="no-print text-xs font-semibold bg-steel-100 hover:bg-steel-200 text-navy-900 px-3 py-1.5 rounded-lg border border-steel-300 transition cursor-pointer">
+              Örnek 7 Verilerini Yükle
+            </button>
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-xs font-semibold text-navy-900 mb-1">Teorik Net Hedef Tüketim (m/adet)</label>
+            <input type="number" id="verify-theo" step="0.001" min="0.001" value="1.550" oninput="calcVerification()" class="w-48 font-mono text-sm bg-steel-50 border border-steel-300 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-tealeng-500">
+          </div>
+
+          <!-- Hızlı Yapıştırma Alanı -->
+          <div class="no-print mb-3 bg-steel-50 p-2.5 rounded-lg border border-steel-200 flex flex-col sm:flex-row gap-2">
+            <input type="text" id="paste-samples-input" placeholder="Örn: 1,58 / 1,62 / 1,59 / 1,61 / 1,60 ..." class="flex-1 text-xs font-mono bg-white border border-steel-300 rounded-md px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-tealeng-500">
+            <button type="button" onclick="parsePastedSamples()" class="bg-navy-900 hover:bg-navy-850 text-white text-xs font-semibold px-3 py-1.5 rounded-md transition whitespace-nowrap cursor-pointer">
+              Kutulara Dağıt
+            </button>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-5 gap-2.5 mb-5" id="sample-inputs-grid"></div>
+
+          <!-- Doğrulama Sonuç Kutuları -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-steel-50 p-4 rounded-xl border border-steel-200">
+            <div>
+              <span class="text-xs text-steel-500 block">Fiili Ortalama</span>
+              <span id="verify-avg" class="text-xl font-mono font-bold text-navy-900">1,605 m/adet</span>
+            </div>
+            <div>
+              <span class="text-xs text-steel-500 block">Sapma (%)</span>
+              <span id="verify-dev" class="text-xl font-mono font-bold text-amber-600">+%3,55</span>
+            </div>
+            <div>
+              <span class="text-xs text-steel-500 block">Min / Maks / Std. Sapma</span>
+              <span id="verify-range" class="text-xs font-mono font-semibold text-steel-700 mt-1 block">1,580 – 1,630 m</span>
+            </div>
+          </div>
+
+          <div id="verify-decision-box" class="mt-4 p-3.5 rounded-lg border text-xs leading-relaxed"></div>
+        </div>
+
+        <!-- Sağ: Ters Hesap (Hedef Tüketimden Çap Bulma - Örnek 5) -->
+        <div class="lg:col-span-5 bg-white rounded-xl border border-steel-200 p-5 shadow-sm">
+          <div class="border-b border-steel-100 pb-3 mb-4">
+            <h2 class="text-base font-bold text-navy-900">Hedef Tüketimden Demet Çapı Bulma</h2>
+            <p class="text-xs text-steel-500">Bilinen tüketimden teorik kablo demeti çapını (D) hesaplar.</p>
+          </div>
+
+          <div class="space-y-3 mb-5">
+            <div>
+              <label class="block text-xs font-semibold text-navy-900 mb-1">Spiral İlerleme Boyu L (mm)</label>
+              <input type="number" id="rev-L" value="710" min="1" step="1" oninput="calcReverseDiameter()" class="w-full font-mono text-sm bg-steel-50 border border-steel-300 rounded-lg px-3 py-1.5">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-navy-900 mb-1">Gerçek Sarım Adımı P (mm)</label>
+              <input type="number" id="rev-P" value="15" min="0.1" step="0.1" oninput="calcReverseDiameter()" class="w-full font-mono text-sm bg-steel-50 border border-steel-300 rounded-lg px-3 py-1.5">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-navy-900 mb-1">Hedef Teorik Tüketim T (metre)</label>
+              <input type="number" id="rev-T-m" value="1.665" min="0.001" step="0.001" oninput="calcReverseDiameter()" class="w-full font-mono text-sm bg-steel-50 border border-steel-300 rounded-lg px-3 py-1.5">
+            </div>
+          </div>
+
+          <div id="rev-result-card" class="bg-navy-900 text-white p-4 rounded-xl">
+            <div class="text-xs text-steel-300">Hesaplanan Demet Dış Çapı (D)</div>
+            <div id="rev-D-out" class="text-3xl font-mono font-bold text-cyan-300 mt-1">10,13 mm</div>
+            <p class="text-[11px] text-steel-400 mt-2">Not: Ölçülen adım varsayımı içindir; gerçek bindirme şartı ayrıca kontrol edilir.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Alt Bilgi -->
+  <footer class="bg-white border-t border-steel-200 mt-10 py-4 px-4 sm:px-6 text-xs text-steel-500">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+      <span>Teleset Kablo Gruplarında Bant Tüketimi Hesaplama Aracı (Rev. 02)</span>
+      <span>Silindir Yüzey Açınımı & Pisagor Bağıntısı Temelli Mühendislik Hesabı</span>
+    </div>
+  </footer>
+
+  <!-- =====================================================================
+       JAVASCRIPT MOTORU: DOKÜMAN FORMÜLLERİ & ETKİLEŞİMLİ UI
+  ====================================================================== -->
+  <script>
+    // Uygulama Durumu (State)
+    let zones = [];
+    let nextZoneId = 1;
+    let latestCalcSummary = null;
+
+    // Örnek 7 Varsayılan Numune Ölçümleri
+    const defaultSamples = [1.58, 1.62, 1.59, 1.61, 1.60, 1.63, 1.59, 1.60, 1.62, 1.61];
+
+    // Yardımcı: Türkçe sayı formatı (virgüllü)
+    function fmtTR(num, decimals = 3) {
+      if (num === null || num === undefined || isNaN(num) || !isFinite(num)) return '—';
+      return num.toLocaleString('tr-TR', {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals
+      });
+    }
+
+    // Yardımcı: Bildirim göster
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const el = document.createElement('div');
+      const colors = type === 'success'
+        ? 'bg-emerald-700 text-white border-emerald-500'
+        : type === 'warn'
+        ? 'bg-amber-600 text-white border-amber-400'
+        : 'bg-navy-900 text-white border-steel-600';
+      el.className = `${colors} border px-4 py-2.5 rounded-lg shadow-lg text-xs font-medium transition-opacity duration-300`;
+      el.textContent = message;
+      container.appendChild(el);
+      setTimeout(() => {
+        el.style.opacity = '0';
+        setTimeout(() => el.remove(), 300);
+      }, 2800);
+    }
+
+    // Sekme Geçişi
+    function switchTab(tabName) {
+      const tabs = ['calc', 'prod', 'verify'];
+      tabs.forEach(t => {
+        document.getElementById(`view-${t}`).classList.add('hidden');
+        const btn = document.getElementById(`tab-btn-${t}`);
+        btn.classList.remove('tab-active');
+        btn.classList.add('text-steel-700');
+      });
+      document.getElementById(`view-${tabName}`).classList.remove('hidden');
+      const activeBtn = document.getElementById(`tab-btn-${tabName}`);
+      activeBtn.classList.add('tab-active');
+      activeBtn.classList.remove('text-steel-700');
+
+      if (tabName === 'prod' && latestCalcSummary) {
+        document.getElementById('prod-unit-m').value = latestCalcSummary.grossTotalM.toFixed(4);
+        calcProduction();
+      }
+    }
+
+    // Temiz Başlangıç Şablonuna Sıfırla
+    function resetToCleanSingleZone() {
+      zones = [
+        { id: nextZoneId++, name: 'Bölge 1', D: 10, L: 500, B: 15, method: 'overlap', P: 17.07, R: 0, G: 10, spotCount: 1, spotTurns: 2, helperTurns: 5, helperSpan: 75 }
+      ];
+      document.getElementById('global-n').value = 2;
+      document.getElementById('global-n-mode').value = 'first';
+      document.getElementById('scrap-pct').value = 3;
+      document.getElementById('scrap-mode').value = 'net';
+      renderZones();
+      recalculateAll();
+      showToast('Temiz tek bölgeli başlangıç şablonuna sıfırlandı.', 'info');
+    }
+
+    // Hazır Eğitim Örnekleri
+    function loadSelectedPreset() {
+      const val = document.getElementById('preset-select').value;
+      if (val === 'ex1') {
+        zones = [
+          { id: nextZoneId++, name: 'Bölge 1 (Ana Demet)', D: 10, L: 710, B: 15, method: 'overlap', P: 17.07, R: 0, G: 10, spotCount: 1, spotTurns: 2, helperTurns: 5, helperSpan: 85.35 }
+        ];
+        document.getElementById('global-n').value = 2;
+        document.getElementById('global-n-mode').value = 'first';
+        document.getElementById('scrap-pct').value = 3;
+        document.getElementById('scrap-mode').value = 'net';
+        showToast('Örnek 1 yüklendi: Sık bantlama, gerçek %0 bindirme (1,596 m/adet).', 'success');
+      } else if (val === 'ex2') {
+        zones = [
+          { id: nextZoneId++, name: 'Bölge 1 (Ana Demet)', D: 10, L: 710, B: 15, method: 'overlap', P: 7.72, R: 50, G: 10, spotCount: 1, spotTurns: 2, helperTurns: 5, helperSpan: 38.6 }
+        ];
+        document.getElementById('global-n').value = 2;
+        document.getElementById('global-n-mode').value = 'first';
+        document.getElementById('scrap-pct').value = 3;
+        document.getElementById('scrap-mode').value = 'net';
+        showToast('Örnek 2 yüklendi: Sık bantlama, gerçek %50 bindirme (3,128 m/adet).', 'success');
+      } else if (val === 'ex3') {
+        zones = [
+          { id: nextZoneId++, name: 'Bölge 1 (Seyrek)', D: 8, L: 600, B: 15, method: 'pitch', P: 30, R: 0, G: 15, spotCount: 1, spotTurns: 2, helperTurns: 5, helperSpan: 150 }
+        ];
+        document.getElementById('global-n').value = 2;
+        document.getElementById('global-n-mode').value = 'first';
+        document.getElementById('scrap-pct').value = 3;
+        document.getElementById('scrap-mode').value = 'net';
+        showToast('Örnek 3 yüklendi: Seyrek bantlama, 5 turda 150 mm ilerleme (0,858 m/adet).', 'success');
+      } else if (val === 'ex4') {
+        zones = [
+          { id: nextZoneId++, name: 'Bölge A (Kalın Demet)', D: 10, L: 650, B: 15, method: 'overlap', P: 17.07, R: 0, G: 10, spotCount: 1, spotTurns: 2, helperTurns: 5, helperSpan: 85.35 },
+          { id: nextZoneId++, name: 'Bölge B (İnce Dal)', D: 4, L: 60, B: 15, method: 'pitch', P: 15, R: 0, G: 10, spotCount: 1, spotTurns: 2, helperTurns: 5, helperSpan: 75 }
+        ];
+        document.getElementById('global-n').value = 2;
+        document.getElementById('global-n-mode').value = 'avg_ends';
+        document.getElementById('scrap-pct').value = 3;
+        document.getElementById('scrap-mode').value = 'net';
+        showToast('Örnek 4 yüklendi: Karma çaplı demet (1,528 m/adet).', 'success');
+      } else if (val === 'ex6_var') {
+        zones = [
+          { id: nextZoneId++, name: 'Bölge 1 (65 cm)', D: 10, L: 650, B: 15, method: 'pitch', P: 15, R: 0, G: 10, spotCount: 1, spotTurns: 2, helperTurns: 5, helperSpan: 75 },
+          { id: nextZoneId++, name: 'Bölge 2 (6 cm)', D: 4, L: 60, B: 15, method: 'pitch', P: 15, R: 0, G: 10, spotCount: 1, spotTurns: 2, helperTurns: 5, helperSpan: 75 }
+        ];
+        document.getElementById('global-n').value = 2;
+        document.getElementById('global-n-mode').value = 'avg_ends';
+        document.getElementById('scrap-pct').value = 3;
+        document.getElementById('scrap-mode').value = 'net';
+        showToast('Bölüm 6 örneği yüklendi (1,680 m/adet).', 'success');
+      } else if (val === 'spot_nb') {
+        zones = [
+          { id: nextZoneId++, name: 'Nokta Bant Bölgesi', D: 10, L: 0, B: 15, method: 'spot', P: 15, R: 0, G: 10, spotCount: 1, spotTurns: 2, helperTurns: 5, helperSpan: 75 }
+        ];
+        document.getElementById('global-n').value = 0;
+        document.getElementById('global-n-mode').value = 'first';
+        document.getElementById('scrap-pct').value = 3;
+        document.getElementById('scrap-mode').value = 'net';
+        showToast('Noktasal Bantlama (NB) örneği yüklendi: D=10 mm, 1 nokta × 2 tur.', 'success');
+      }
+      renderZones();
+      recalculateAll();
+    }
+
+    // Yeni Bölge Ekle
+    function addZone() {
+      const idx = zones.length + 1;
+      zones.push({
+        id: nextZoneId++,
+        name: `Bölge ${idx}`,
+        D: 8,
+        L: 250,
+        B: 15,
+        method: 'overlap',
+        P: 15,
+        R: 0,
+        G: 10,
+        spotCount: 1,
+        spotTurns: 2,
+        helperTurns: 5,
+        helperSpan: 75
+      });
+      renderZones();
+      recalculateAll();
+      showToast(`Bölge ${idx} eklendi.`, 'info');
+    }
+
+    // Bölge Sil
+    function removeZone(id) {
+      if (zones.length <= 1) {
+        showToast('En az bir bölge bulunmalıdır.', 'warn');
+        return;
+      }
+      zones = zones.filter(z => z.id !== id);
+      renderZones();
+      recalculateAll();
+      showToast('Bölge silindi.', 'info');
+    }
+
+    // Alan Güncelleme
+    function updateZoneField(id, field, value) {
+      const z = zones.find(item => item.id === id);
+      if (!z) return;
+      if (field === 'name' || field === 'method') {
+        z[field] = value;
+        if (field === 'method') {
+          renderZones();
+        }
+      } else {
+        z[field] = parseFloat(value) || 0;
+      }
+      recalculateAll();
+    }
+
+    // Hızlı Çap / Bant / Boy Seçici
+    function applyQuickVal(id, field, val) {
+      const z = zones.find(item => item.id === id);
+      if (!z) return;
+      z[field] = val;
+      renderZones();
+      recalculateAll();
+    }
+
+    // Genel Tur ve Fire Hızlı Tuşları
+    function setGlobalTurns(val) {
+      document.getElementById('global-n').value = val;
+      recalculateAll();
+    }
+
+    function setScrapPct(val) {
+      document.getElementById('scrap-pct').value = val;
+      recalculateAll();
+    }
+
+    // Standart Proses Kodu Hızlı Seçimi (SB-00, SB-25, SB-50, YB-10, YB-15, YB-20)
+    function applyQuickProcess(id, method, val) {
+      const z = zones.find(item => item.id === id);
+      if (!z) return;
+      z.method = method;
+      if (method === 'overlap') z.R = val;
+      if (method === 'gap') z.G = val;
+      renderZones();
+      recalculateAll();
+    }
+
+    // N Tur Yardımcısından P Hesaplama
+    function applyPitchHelper(id) {
+      const z = zones.find(item => item.id === id);
+      if (!z) return;
+      if (z.helperTurns > 0 && z.helperSpan > 0) {
+        z.P = parseFloat((z.helperSpan / z.helperTurns).toFixed(4));
+        renderZones();
+        recalculateAll();
+        showToast(`Ortalama sarım adımı P = ${fmtTR(z.P, 2)} mm olarak güncellendi.`, 'success');
+      }
+    }
+
+    // Tekil Bölge Geometrik Hesabı (Rev. 02 Formülleri)
+    function computeZoneMetrics(zone) {
+      const D = Math.max(0, zone.D);
+      const L = Math.max(0, zone.L);
+      const B = Math.max(0.1, zone.B);
+      const C = Math.PI * D; // Çevre (mm)
+
+      let P = 0;
+      let S = 0;
+      let N = 0;
+      let turnLength = 0;
+      let spiralMm = 0;
+      let nominalMm = null;
+      let warning = null;
+      let codeBadge = 'SB-00';
+
+      if (zone.method === 'spot') {
+        const spotCount = Math.max(0, zone.spotCount || 0);
+        const spotTurns = Math.max(0, zone.spotTurns || 0);
+        N = spotCount * spotTurns;
+        turnLength = C;
+        spiralMm = N * C;
+        codeBadge = 'NB';
+        P = null;
+        S = null;
+      } else if (zone.method === 'pitch') {
+        P = Math.max(0.01, zone.P);
+        N = L / P;
+        turnLength = Math.sqrt(C * C + P * P);
+        spiralMm = N * turnLength;
+        codeBadge = 'Ölçülen P';
+      } else if (zone.method === 'overlap') {
+        const R = Math.min(99, Math.max(0, zone.R)) / 100;
+        S = B * (1 - R);
+        codeBadge = `SB-${String(Math.round(zone.R)).padStart(2, '0')}`;
+
+        // Nominal yaklaşım karşılaştırması: P_nom = B(1 - R)
+        const P_nom = Math.max(0.01, B * (1 - R));
+        nominalMm = (L / P_nom) * Math.sqrt(C * C + P_nom * P_nom);
+
+        if (S >= C) {
+          warning = `Bu bant (${fmtTR(B, 0)} mm), ince kablo çevresinden (${fmtTR(C, 1)} mm) büyük olduğu için %${fmtTR(zone.R, 0)} bindirme geometrik olarak mümkün değildir. Bindirme oranını (%) artırın veya "Gerçek Sarım Adımı (P)" seçin.`;
+          P = null;
+          N = 0;
+          turnLength = 0;
+          spiralMm = 0;
+        } else {
+          // Bölüm 4: P = S * πD / √[(πD)² - S²] ve T = π * D * L / S
+          P = (S * C) / Math.sqrt(C * C - S * S);
+          N = L / P;
+          turnLength = Math.sqrt(C * C + P * P);
+          spiralMm = (C * L) / S;
+        }
+      } else if (zone.method === 'gap') {
+        const G = Math.max(0, zone.G);
+        S = B + G;
+        codeBadge = `YB-${Math.round(G)}`;
+
+        if (S >= C) {
+          warning = `Bant + boşluk toplamı (${fmtTR(S, 1)} mm), kablo çevresini (${fmtTR(C, 1)} mm) aşıyor. Boşluğu azaltın veya "Gerçek Sarım Adımı (P)" seçin.`;
+          P = null;
+          N = 0;
+          turnLength = 0;
+          spiralMm = 0;
+        } else {
+          // Bölüm 5: S = B + G | T = π * D * L / S
+          P = (S * C) / Math.sqrt(C * C - S * S);
+          N = L / P;
+          turnLength = Math.sqrt(C * C + P * P);
+          spiralMm = (C * L) / S;
+        }
+      }
+
+      return {
+        D, L, B, C, P, S, N, turnLength, spiralMm,
+        spiralM: spiralMm / 1000,
+        nominalM: nominalMm !== null ? nominalMm / 1000 : null,
+        warning,
+        codeBadge
+      };
+    }
+
+    // Bölge Kartlarını HTML Olarak Çizme
+    function renderZones() {
+      const container = document.getElementById('zones-container');
+      container.innerHTML = '';
+
+      const methodOptions = [
+        { key: 'overlap', label: 'Sık Bantlama (Bindirme %)' },
+        { key: 'gap', label: 'Seyrek Bantlama (Boşluk G)' },
+        { key: 'pitch', label: 'Gerçek Sarım Adımı (P)' },
+        { key: 'spot', label: 'Nokta Bant (NB)' }
+      ];
+
+      zones.forEach((zone, index) => {
+        const isSpot = zone.method === 'spot';
+        const card = document.createElement('div');
+        card.className = "bg-white rounded-xl border border-steel-200 p-4 sm:p-5 shadow-sm transition hover:border-steel-300";
+        card.innerHTML = `
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-steel-100 pb-3 mb-3.5">
+            <div class="flex items-center gap-2.5">
+              <span class="w-6 h-6 rounded-md bg-navy-900 text-white text-xs font-mono font-bold flex items-center justify-center">${index + 1}</span>
+              <input type="text" value="${escapeHtml(zone.name)}" oninput="updateZoneField(${zone.id}, 'name', this.value)"
+                class="font-bold text-sm text-navy-900 bg-steel-50 border border-steel-200 rounded-md px-2.5 py-1 focus:outline-none focus:ring-2 focus:ring-tealeng-500 w-40 sm:w-48" />
+              <span id="zone-badge-${zone.id}" class="text-[11px] font-mono font-semibold px-2 py-0.5 rounded bg-tealeng-500/10 text-tealeng-700 border border-tealeng-500/20">SB-00</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="text-right">
+                <span class="text-[11px] text-steel-500 block">${isSpot ? 'Nokta Bant Tüketimi' : 'Bölge Spiral Tüketim'}</span>
+                <span id="zone-card-result-${zone.id}" class="font-mono font-bold text-sm text-tealeng-700">0,000 m</span>
+              </div>
+              ${zones.length > 1 ? `
+                <button type="button" onclick="removeZone(${zone.id})" title="Bu Bölgeyi Sil"
+                  class="no-print text-rose-600 hover:text-white hover:bg-rose-600 border border-rose-200 bg-rose-50 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1 cursor-pointer">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                  </svg>
+                  Sil
+                </button>
+              ` : ''}
+            </div>
+          </div>
+
+          <!-- 1. Adım: Bantlama Tipi Seçici -->
+          <div class="no-print mb-3.5">
+            <label class="block text-[11px] font-semibold text-steel-600 mb-1.5">Bantlama Tipi / Hesaplama Yöntemi</label>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+              ${methodOptions.map(opt => `
+                <button type="button" onclick="updateZoneField(${zone.id}, 'method', '${opt.key}')"
+                  class="px-2.5 py-1.5 text-xs font-semibold rounded-lg border transition cursor-pointer ${zone.method === opt.key ? 'bg-navy-900 text-white border-navy-900 shadow-xs' : 'bg-steel-50 text-steel-700 border-steel-200 hover:bg-steel-100'}">
+                  ${opt.label}
+                </button>
+              `).join('')}
+            </div>
+          </div>
+
+          <!-- 2. Adım: Fiziksel Ölçüler + Hızlı Çap/Bant Seçim Tuşları -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+            <div>
+              <label class="block text-[11px] font-semibold text-steel-700 mb-1">Demet Çapı D (mm)</label>
+              <input type="number" min="0.1" step="0.1" value="${zone.D}" oninput="updateZoneField(${zone.id}, 'D', this.value)"
+                class="w-full font-mono text-sm bg-steel-50 border border-steel-300 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-tealeng-500">
+              <div class="no-print flex flex-wrap gap-1 mt-1">
+                ${[4, 8, 10, 15].map(dVal => `
+                  <button type="button" onclick="applyQuickVal(${zone.id}, 'D', ${dVal})" class="text-[10px] font-mono bg-steel-100 hover:bg-steel-200 text-steel-700 px-1.5 py-0.5 rounded border border-steel-200 cursor-pointer">${dVal}</button>
+                `).join('')}
+              </div>
+            </div>
+
+            <div class="${isSpot ? 'opacity-40 pointer-events-none' : ''}">
+              <label class="block text-[11px] font-semibold text-steel-700 mb-1">Bantlama Boyu L (mm)</label>
+              <input type="number" min="0" step="1" value="${isSpot ? 0 : zone.L}" oninput="updateZoneField(${zone.id}, 'L', this.value)"
+                class="w-full font-mono text-sm bg-steel-50 border border-steel-300 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-tealeng-500">
+              <div class="no-print flex flex-wrap gap-1 mt-1">
+                ${[100, 500, 710].map(lVal => `
+                  <button type="button" onclick="applyQuickVal(${zone.id}, 'L', ${lVal})" class="text-[10px] font-mono bg-steel-100 hover:bg-steel-200 text-steel-700 px-1.5 py-0.5 rounded border border-steel-200 cursor-pointer">${lVal}</button>
+                `).join('')}
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-[11px] font-semibold text-steel-700 mb-1">Bant Genişliği B (mm)</label>
+              <input type="number" min="1" step="0.5" value="${zone.B}" oninput="updateZoneField(${zone.id}, 'B', this.value)"
+                class="w-full font-mono text-sm bg-steel-50 border border-steel-300 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-tealeng-500">
+              <div class="no-print flex flex-wrap gap-1 mt-1">
+                ${[9, 15, 19, 25].map(bVal => `
+                  <button type="button" onclick="applyQuickVal(${zone.id}, 'B', ${bVal})" class="text-[10px] font-mono bg-steel-100 hover:bg-steel-200 text-steel-700 px-1.5 py-0.5 rounded border border-steel-200 cursor-pointer">${bVal}</button>
+                `).join('')}
+              </div>
+            </div>
+
+            <div class="bg-steel-50 rounded-lg px-2.5 py-1.5 border border-steel-200 flex flex-col justify-center">
+              <span class="text-[10px] text-steel-500">Demet Çevresi (π·D)</span>
+              <span id="zone-circ-${zone.id}" class="font-mono text-xs font-bold text-navy-900 mt-0.5">31,42 mm</span>
+            </div>
+          </div>
+
+          <!-- 3. Adım: Seçilen Sarım Tipine Özel Parametreler -->
+          <div class="bg-steel-50/80 rounded-lg p-3 border border-steel-200">
+            ${zone.method === 'pitch' ? `
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
+                <div>
+                  <label class="block text-xs font-semibold text-navy-900 mb-1">Gerçek Sarım Adımı P (mm)</label>
+                  <input type="number" min="0.1" step="0.01" value="${zone.P}" oninput="updateZoneField(${zone.id}, 'P', this.value)"
+                    class="w-full font-mono text-sm bg-white border border-steel-300 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-tealeng-500">
+                </div>
+                <div class="no-print bg-white p-2 rounded-lg border border-steel-200">
+                  <span class="block text-[10px] font-semibold text-steel-600 mb-1">N Tur İlerleme Ölçüm Yardımcısı:</span>
+                  <div class="flex items-center gap-1.5">
+                    <input type="number" min="1" step="1" value="${zone.helperTurns}" oninput="updateZoneField(${zone.id}, 'helperTurns', this.value)" class="w-14 font-mono text-xs border border-steel-300 rounded px-1.5 py-1" title="Tur sayısı">
+                    <span class="text-[11px] text-steel-500">tur =</span>
+                    <input type="number" min="1" step="0.5" value="${zone.helperSpan}" oninput="updateZoneField(${zone.id}, 'helperSpan', this.value)" class="w-16 font-mono text-xs border border-steel-300 rounded px-1.5 py-1" title="Toplam mm">
+                    <span class="text-[11px] text-steel-500">mm</span>
+                    <button type="button" onclick="applyPitchHelper(${zone.id})" class="ml-auto bg-tealeng-500 hover:bg-tealeng-600 text-white text-[11px] font-semibold px-2 py-1 rounded cursor-pointer">P Hesapla</button>
+                  </div>
+                </div>
+              </div>
+            ` : zone.method === 'overlap' ? `
+              <div class="space-y-2.5">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                  <label class="text-xs font-semibold text-navy-900">Gerçek Dik Bindirme Oranı R (%)</label>
+                  <div class="no-print flex items-center gap-1">
+                    <span class="text-[10px] text-steel-500 mr-1">Hızlı Seçim:</span>
+                    <button type="button" onclick="applyQuickProcess(${zone.id}, 'overlap', 0)" class="px-2 py-0.5 text-[11px] font-mono rounded border ${zone.R === 0 ? 'bg-tealeng-600 text-white border-tealeng-600' : 'bg-white text-navy-900 border-steel-300 hover:bg-steel-100'} cursor-pointer">SB-00 (%0)</button>
+                    <button type="button" onclick="applyQuickProcess(${zone.id}, 'overlap', 25)" class="px-2 py-0.5 text-[11px] font-mono rounded border ${zone.R === 25 ? 'bg-tealeng-600 text-white border-tealeng-600' : 'bg-white text-navy-900 border-steel-300 hover:bg-steel-100'} cursor-pointer">SB-25 (%25)</button>
+                    <button type="button" onclick="applyQuickProcess(${zone.id}, 'overlap', 50)" class="px-2 py-0.5 text-[11px] font-mono rounded border ${zone.R === 50 ? 'bg-tealeng-600 text-white border-tealeng-600' : 'bg-white text-navy-900 border-steel-300 hover:bg-steel-100'} cursor-pointer">SB-50 (%50)</button>
+                  </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
+                  <div class="flex items-center gap-2">
+                    <input type="number" min="0" max="90" step="1" value="${zone.R}" oninput="updateZoneField(${zone.id}, 'R', this.value)"
+                      class="w-24 font-mono text-sm bg-white border border-steel-300 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-tealeng-500">
+                    <span class="text-xs font-mono text-steel-600">% bindirme</span>
+                  </div>
+                  <div class="text-xs text-steel-700 bg-white px-2.5 py-1.5 rounded-lg border border-steel-200 flex justify-between">
+                    <span>Geometrik Adım P:</span>
+                    <span id="zone-calc-p-${zone.id}" class="font-mono font-bold text-tealeng-700">17,07 mm</span>
+                  </div>
+                </div>
+              </div>
+            ` : zone.method === 'gap' ? `
+              <div class="space-y-2.5">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                  <label class="text-xs font-semibold text-navy-900">Bant Kenarları Arası Dik Boşluk G (mm)</label>
+                  <div class="no-print flex items-center gap-1">
+                    <span class="text-[10px] text-steel-500 mr-1">Hızlı Seçim:</span>
+                    <button type="button" onclick="applyQuickProcess(${zone.id}, 'gap', 10)" class="px-2 py-0.5 text-[11px] font-mono rounded border ${zone.G === 10 ? 'bg-tealeng-600 text-white border-tealeng-600' : 'bg-white text-navy-900 border-steel-300 hover:bg-steel-100'} cursor-pointer">YB-10</button>
+                    <button type="button" onclick="applyQuickProcess(${zone.id}, 'gap', 15)" class="px-2 py-0.5 text-[11px] font-mono rounded border ${zone.G === 15 ? 'bg-tealeng-600 text-white border-tealeng-600' : 'bg-white text-navy-900 border-steel-300 hover:bg-steel-100'} cursor-pointer">YB-15</button>
+                    <button type="button" onclick="applyQuickProcess(${zone.id}, 'gap', 20)" class="px-2 py-0.5 text-[11px] font-mono rounded border ${zone.G === 20 ? 'bg-tealeng-600 text-white border-tealeng-600' : 'bg-white text-navy-900 border-steel-300 hover:bg-steel-100'} cursor-pointer">YB-20</button>
+                  </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
+                  <div class="flex items-center gap-2">
+                    <input type="number" min="0" step="0.5" value="${zone.G}" oninput="updateZoneField(${zone.id}, 'G', this.value)"
+                      class="w-24 font-mono text-sm bg-white border border-steel-300 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-tealeng-500">
+                    <span class="text-xs font-mono text-steel-600">mm boşluk</span>
+                  </div>
+                  <div class="text-xs text-steel-700 bg-white px-2.5 py-1.5 rounded-lg border border-steel-200 flex justify-between">
+                    <span>Geometrik Adım P:</span>
+                    <span id="zone-calc-p-${zone.id}" class="font-mono font-bold text-tealeng-700">29,12 mm</span>
+                  </div>
+                </div>
+              </div>
+            ` : `
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
+                <div>
+                  <label class="block text-xs font-semibold text-navy-900 mb-1">Nokta Adedi (Kaç Yere Atılacak?)</label>
+                  <input type="number" min="1" step="1" value="${zone.spotCount || 1}" oninput="updateZoneField(${zone.id}, 'spotCount', this.value)"
+                    class="w-full font-mono text-sm bg-white border border-steel-300 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-tealeng-500">
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-navy-900 mb-1">Nokta Başına Tur Sayısı</label>
+                  <input type="number" min="1" step="0.5" value="${zone.spotTurns || 2}" oninput="updateZoneField(${zone.id}, 'spotTurns', this.value)"
+                    class="w-full font-mono text-sm bg-white border border-steel-300 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-tealeng-500">
+                </div>
+              </div>
+            `}
+
+            <!-- Uyarı Mesajı Alanı -->
+            <div id="zone-warn-${zone.id}" class="hidden mt-2.5 p-2.5 rounded-lg bg-amber-50 border border-amber-300 text-amber-900 text-xs flex items-start gap-2">
+              <svg class="w-4 h-4 text-amber-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+              <span id="zone-warn-text-${zone.id}"></span>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, m => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[m]));
+    }
+
+    // Tüm Bölgeleri ve Genel Toplamları Yeniden Hesapla
+    function recalculateAll() {
+      let totalSpiralMm = 0;
+      let totalTurns = 0;
+      const computedZones = [];
+
+      zones.forEach(zone => {
+        const res = computeZoneMetrics(zone);
+        computedZones.push({ zone, res });
+
+        totalSpiralMm += res.spiralMm;
+        totalTurns += res.N;
+
+        const circEl = document.getElementById(`zone-circ-${zone.id}`);
+        if (circEl) circEl.textContent = `${fmtTR(res.C, 2)} mm`;
+
+        const cardResEl = document.getElementById(`zone-card-result-${zone.id}`);
+        if (cardResEl) cardResEl.textContent = `${fmtTR(res.spiralM, 3)} m`;
+
+        const badgeEl = document.getElementById(`zone-badge-${zone.id}`);
+        if (badgeEl) badgeEl.textContent = res.codeBadge;
+
+        const calcPEl = document.getElementById(`zone-calc-p-${zone.id}`);
+        if (calcPEl) calcPEl.textContent = res.P !== null ? `${fmtTR(res.P, 2)} mm` : 'Geçersiz';
+
+        const warnBox = document.getElementById(`zone-warn-${zone.id}`);
+        const warnText = document.getElementById(`zone-warn-text-${zone.id}`);
+        if (warnBox && warnText) {
+          if (res.warning) {
+            warnBox.classList.remove('hidden');
+            warnText.textContent = res.warning;
+          } else {
+            warnBox.classList.add('hidden');
+          }
+        }
+      });
+
+      // Genel Ek Sabitleme Turları Hesabı
+      const globalN = Math.max(0, parseFloat(document.getElementById('global-n').value) || 0);
+      const nMode = document.getElementById('global-n-mode').value;
+      const customWrap = document.getElementById('global-custom-d-wrap');
+
+      let effectiveFixingD = computedZones.length > 0 ? computedZones[0].res.D : 10;
+      if (nMode === 'custom') {
+        customWrap.classList.remove('hidden');
+        effectiveFixingD = Math.max(0, parseFloat(document.getElementById('global-custom-d').value) || 0);
+      } else {
+        customWrap.classList.add('hidden');
+        if (nMode === 'avg_ends' && computedZones.length >= 2) {
+          const dFirst = computedZones[0].res.D;
+          const dLast = computedZones[computedZones.length - 1].res.D;
+          effectiveFixingD = (dFirst + dLast) / 2;
+        }
+      }
+
+      const fixingMm = globalN * Math.PI * effectiveFixingD;
+      const netTotalMm = totalSpiralMm + fixingMm;
+      const netTotalM = netTotalMm / 1000;
+
+      // Fire Hesabı
+      const scrapPct = Math.max(0, parseFloat(document.getElementById('scrap-pct').value) || 0);
+      const f = scrapPct / 100;
+      const scrapMode = document.getElementById('scrap-mode').value;
+
+      let grossTotalM = netTotalM;
+      if (scrapMode === 'net') {
+        grossTotalM = netTotalM * (1 + f);
+      } else {
+        grossTotalM = f < 1 ? netTotalM / (1 - f) : netTotalM;
+      }
+      const scrapAddedM = grossTotalM - netTotalM;
+
+      // Sağ Panel Özeti Güncelle
+      document.getElementById('summary-zone-count').textContent = `${zones.length} Bölge`;
+      document.getElementById('res-net-total').innerHTML = `${fmtTR(netTotalM, 3)} <span class="text-sm font-normal text-steel-500">m</span>`;
+      document.getElementById('res-net-mm').textContent = `${fmtTR(netTotalMm, 1)} mm`;
+      document.getElementById('res-gross-total').innerHTML = `${fmtTR(grossTotalM, 3)} <span class="text-sm font-normal text-cyan-100">m/adet</span>`;
+      document.getElementById('res-scrap-added').textContent = `+${fmtTR(scrapAddedM, 3)} m (%${fmtTR(scrapPct, 1)} fire)`;
+
+      document.getElementById('res-spiral-only').textContent = `${fmtTR(totalSpiralMm / 1000, 3)} m`;
+      document.getElementById('res-fixing-only').textContent = `${fmtTR(fixingMm / 1000, 3)} m (${fmtTR(globalN, 1)} tur)`;
+      document.getElementById('res-total-turns').textContent = `${fmtTR(totalTurns + globalN, 2)} tur`;
+
+      // Döküm Tablosunu Güncelle
+      renderBreakdownTable(computedZones, globalN, effectiveFixingD, fixingMm / 1000, netTotalM, scrapPct, scrapMode, grossTotalM);
+
+      // SVG Şemaları ve Excel Formülünü Güncelle
+      drawHarnessSVG(computedZones);
+      if (computedZones.length > 0) {
+        drawUnfoldSVG(computedZones[0]);
+        updateExcelFormulaBox(computedZones[0], globalN, scrapPct);
+      }
+
+      latestCalcSummary = {
+        computedZones,
+        globalN,
+        fixingM: fixingMm / 1000,
+        netTotalM,
+        grossTotalM,
+        scrapPct
+      };
+    }
+
+    // Döküm Tablosu Render
+    function renderBreakdownTable(computedZones, globalN, fixingD, fixingM, netTotalM, scrapPct, scrapMode, grossTotalM) {
+      const tbody = document.getElementById('breakdown-tbody');
+      tbody.innerHTML = '';
+
+      computedZones.forEach(({ zone, res }) => {
+        const isSpot = zone.method === 'spot';
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-steel-50";
+        tr.innerHTML = `
+          <td class="py-2.5 px-4 font-sans font-semibold text-navy-900">${escapeHtml(zone.name)}</td>
+          <td class="py-2.5 px-4 font-sans text-xs text-steel-700">${res.codeBadge}</td>
+          <td class="py-2.5 px-4 text-right">${fmtTR(res.D, 1)}</td>
+          <td class="py-2.5 px-4 text-right">${isSpot ? `${zone.spotCount || 1} nokta × ${zone.spotTurns || 2} tur` : `${fmtTR(res.L, 0)} mm`}</td>
+          <td class="py-2.5 px-4 text-right">${res.P !== null ? fmtTR(res.P, 2) : '—'}</td>
+          <td class="py-2.5 px-4 text-right">${fmtTR(res.N, 2)}</td>
+          <td class="py-2.5 px-4 text-right font-semibold text-navy-900">${fmtTR(res.spiralM, 3)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      if (globalN > 0) {
+        const trFix = document.createElement('tr');
+        trFix.className = "bg-steel-50/60";
+        trFix.innerHTML = `
+          <td class="py-2.5 px-4 font-sans text-steel-700">Genel Ek Sabitleme Turları</td>
+          <td class="py-2.5 px-4 font-sans text-xs text-steel-500">Çevresel (n × π × D)</td>
+          <td class="py-2.5 px-4 text-right text-steel-600">${fmtTR(fixingD, 1)}</td>
+          <td class="py-2.5 px-4 text-right text-steel-400">—</td>
+          <td class="py-2.5 px-4 text-right text-steel-400">—</td>
+          <td class="py-2.5 px-4 text-right">${fmtTR(globalN, 1)}</td>
+          <td class="py-2.5 px-4 text-right font-semibold text-navy-900">${fmtTR(fixingM, 3)}</td>
+        `;
+        tbody.appendChild(trFix);
+      }
+
+      const trNet = document.createElement('tr');
+      trNet.className = "bg-steel-100 font-bold border-t-2 border-steel-300";
+      trNet.innerHTML = `
+        <td colspan="6" class="py-2.5 px-4 font-sans text-right text-navy-900">Net Toplam Tüketim:</td>
+        <td class="py-2.5 px-4 text-right text-navy-900">${fmtTR(netTotalM, 3)} m</td>
+      `;
+      tbody.appendChild(trNet);
+
+      const trGross = document.createElement('tr');
+      trGross.className = "bg-tealeng-500/10 font-bold text-tealeng-700";
+      trGross.innerHTML = `
+        <td colspan="6" class="py-3 px-4 font-sans text-right">%${fmtTR(scrapPct, 1)} Fire Dahil Onaylı BOM Tüketimi:</td>
+        <td class="py-3 px-4 text-right text-base">${fmtTR(grossTotalM, 3)} m/adet</td>
+      `;
+      tbody.appendChild(trGross);
+    }
+
+    // SVG 1: Çok Bölgeli Kablo Demeti Şeması (Şekil 3 Stili)
+    function drawHarnessSVG(computedZones) {
+      const svg = document.getElementById('harness-svg');
+      if (!svg || computedZones.length === 0) return;
+
+      const totalL = computedZones.reduce((acc, item) => acc + Math.max(20, item.res.L || 60), 0);
+      const maxD = Math.max(...computedZones.map(item => Math.max(2, item.res.D)));
+      const startX = 24;
+      const usableW = 472;
+      const centerY = 55;
+      const maxBarH = 44;
+
+      let currentX = startX;
+      let shapes = '';
+
+      computedZones.forEach(({ zone, res }, idx) => {
+        const effectiveL = Math.max(20, res.L || 60);
+        const w = Math.max(36, (effectiveL / totalL) * usableW);
+        const h = Math.max(12, (Math.max(2, res.D) / maxD) * maxBarH);
+        const y = centerY - h / 2;
+
+        const fill = idx % 2 === 0 ? '#334155' : '#005f73';
+        shapes += `<rect x="${currentX}" y="${y}" width="${w}" height="${h}" rx="3" fill="${fill}" />`;
+
+        if (zone.method === 'spot') {
+          const spots = Math.min(6, Math.max(1, zone.spotCount || 1));
+          for (let s = 1; s <= spots; s++) {
+            const sx = currentX + (w / (spots + 1)) * s;
+            shapes += `<rect x="${sx - 3}" y="${y - 2}" width="6" height="${h + 4}" rx="1" fill="#38bdf8" />`;
+          }
+        } else {
+          const pitchVis = zone.method === 'gap' ? 18 : 10;
+          for (let sx = currentX + 6; sx < currentX + w - 4; sx += pitchVis) {
+            shapes += `<line x1="${sx}" y1="${y + h}" x2="${sx + 4}" y2="${y}" stroke="#94a3b8" stroke-width="1.3" opacity="0.85" />`;
+          }
+        }
+
+        if (w > 48) {
+          shapes += `<text x="${currentX + w / 2}" y="${y - 7}" text-anchor="middle" font-family="Inter, sans-serif" font-size="10" font-weight="600" fill="#0d192b">D=${fmtTR(res.D, 0)} mm</text>`;
+          const subLabel = zone.method === 'spot' ? `NB (${zone.spotCount || 1}×${zone.spotTurns || 2}t)` : `L=${fmtTR(res.L, 0)}`;
+          shapes += `<text x="${currentX + w / 2}" y="${y + h + 15}" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9.5" fill="#475569">${subLabel}</text>`;
+        }
+
+        currentX += w + 2;
+      });
+
+      svg.innerHTML = `
+        <line x1="12" y1="${centerY}" x2="508" y2="${centerY}" stroke="#cbd5e1" stroke-dasharray="4 3" stroke-width="1"/>
+        ${shapes}
+      `;
+    }
+
+    // SVG 2: Silindir Yüzeyinin Açınımı (Şekil 2 Pisagor Diyagramı)
+    function drawUnfoldSVG(firstItem) {
+      const svg = document.getElementById('unfold-svg');
+      if (!svg || !firstItem) return;
+
+      const { res } = firstItem;
+      const C = res.C || 31.42;
+      const P = res.P || 17.07;
+      const hyp = res.turnLength || Math.sqrt(C * C + P * P);
+
+      const boxH = 95;
+      const ratio = Math.min(2.2, Math.max(0.45, P / C));
+      const boxW = Math.round(boxH * ratio);
+      const x0 = 135;
+      const y0 = 20;
+
+      svg.innerHTML = `
+        <rect x="${x0}" y="${y0}" width="${boxW}" height="${boxH}" fill="#e0f2fe" stroke="#64748b" stroke-width="1.5" />
+        <line x1="${x0}" y1="${y0 + boxH}" x2="${x0 + boxW}" y2="${y0}" stroke="#007791" stroke-width="4" stroke-linecap="round" />
+        <line x1="${x0 - 12}" y1="${y0}" x2="${x0 - 12}" y2="${y0 + boxH}" stroke="#0d192b" stroke-width="1.2" />
+        <text x="${x0 - 18}" y="${y0 + boxH / 2 + 4}" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600" fill="#0d192b">C = ${fmtTR(C, 2)} mm</text>
+        <line x1="${x0}" y1="${y0 + boxH + 12}" x2="${x0 + boxW}" y2="${y0 + boxH + 12}" stroke="#0d192b" stroke-width="1.2" />
+        <text x="${x0 + boxW / 2}" y="${y0 + boxH + 26}" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600" fill="#0d192b">P = ${fmtTR(P, 2)} mm</text>
+        <rect x="${x0 + boxW + 14}" y="${y0 + 22}" width="215" height="46" rx="6" fill="#ffffff" stroke="#cbd5e1" />
+        <text x="${x0 + boxW + 24}" y="${y0 + 40}" font-family="Inter, sans-serif" font-size="10.5" font-weight="600" fill="#007791">Bir turdaki bant √(C² + P²):</text>
+        <text x="${x0 + boxW + 24}" y="${y0 + 57}" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700" fill="#0d192b">${fmtTR(hyp, 2)} mm / tur</text>
+      `;
+    }
+
+    // Türkçe Excel Formülünü Güncelleme
+    function updateExcelFormulaBox(firstItem, globalN, scrapPct) {
+      const el = document.getElementById('excel-formula-display');
+      if (!el || !firstItem) return;
+      const { zone, res } = firstItem;
+      const fVal = (scrapPct / 100).toFixed(2).replace('.', ',');
+
+      if (zone.method === 'spot') {
+        const spotN = (zone.spotCount || 1) * (zone.spotTurns || 2) + globalN;
+        el.textContent = `=(${String(spotN).replace('.', ',')}*Pİ()*${String(res.D).replace('.', ',')})*(1+${fVal})/1000`;
+      } else {
+        const pVal = res.P !== null ? res.P.toFixed(2).replace('.', ',') : '15';
+        el.textContent = `=(${res.L}/${pVal}*KAREKÖK((Pİ()*${res.D})^2+${pVal}^2)+${globalN}*Pİ()*${res.D})*(1+${fVal})/1000`;
+      }
+    }
+
+    // PDF Çıktısı / Yazdırma Penceresi Açma
+    function exportToPdf() {
+      const bomDetails = document.getElementById('bom-table-details');
+      if (bomDetails) bomDetails.open = true;
+      showToast("Yazdırma ekranında hedef olarak 'PDF olarak kaydet' seçeneğini kullanabilirsiniz.", "info");
+      setTimeout(() => {
+        window.print();
+      }, 250);
+    }
+
+    // Panoya Kopyalama Yardımcıları (iFrame uyumlu execCommand)
+    function copyTextFallback(text, successMsg) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand('copy');
+        showToast(successMsg, 'success');
+      } catch (e) {
+        showToast('Kopyalama sırasında bir hata oluştu.', 'warn');
+      }
+      document.body.removeChild(ta);
+    }
+
+    function copyExcelFormula() {
+      const text = document.getElementById('excel-formula-display').textContent.trim();
+      copyTextFallback(text, 'Türkçe Excel formülü panoya kopyalandı.');
+    }
+
+    function copySummaryTable() {
+      if (!latestCalcSummary) return;
+      const lines = ['Teleset Bant Tüketimi & BOM Hesap Özeti'];
+      latestCalcSummary.computedZones.forEach(({ zone, res }) => {
+        const desc = zone.method === 'spot'
+          ? `${zone.spotCount || 1} nokta × ${zone.spotTurns || 2} tur`
+          : `L=${res.L}mm, P=${res.P ? res.P.toFixed(2) : '-'}mm`;
+        lines.push(`- ${zone.name} (${res.codeBadge}): D=${res.D}mm, ${desc} -> ${fmtTR(res.spiralM, 3)} m`);
+      });
+      lines.push(`Ek Sabitleme (${latestCalcSummary.globalN} tur): ${fmtTR(latestCalcSummary.fixingM, 3)} m`);
+      lines.push(`Net Toplam: ${fmtTR(latestCalcSummary.netTotalM, 3)} m`);
+      lines.push(`%${fmtTR(latestCalcSummary.scrapPct, 1)} Fire Dahil BOM: ${fmtTR(latestCalcSummary.grossTotalM, 3)} m/adet`);
+      copyTextFallback(lines.join('\n'), 'BOM hesap özeti panoya kopyalandı.');
+    }
+
+    // =========================================================================
+    // SEKME 2: SERİ ÜRETİM & MALİYET HESAPLAYICI (Örnek 6)
+    // =========================================================================
+    function syncUnitFromCalc() {
+      if (latestCalcSummary) {
+        document.getElementById('prod-unit-m').value = latestCalcSummary.grossTotalM.toFixed(4);
+        calcProduction();
+        showToast('Birim tüketim 1. sekmeden güncellendi.', 'success');
+      }
+    }
+
+    function loadOrderExample6() {
+      document.getElementById('prod-unit-m').value = '1.52812';
+      document.getElementById('prod-qty').value = '10000';
+      document.getElementById('prod-roll-len').value = '25';
+      document.getElementById('prod-price').value = '0.08';
+      calcProduction();
+      showToast('Örnek 6 verileri yüklendi (612 rulo, 1.222,50 €).', 'success');
+    }
+
+    function calcProduction() {
+      const unitM = Math.max(0, parseFloat(document.getElementById('prod-unit-m').value) || 0);
+      const qty = Math.max(1, parseInt(document.getElementById('prod-qty').value, 10) || 1);
+      const rollLen = Math.max(0.1, parseFloat(document.getElementById('prod-roll-len').value) || 25);
+      const price = Math.max(0, parseFloat(document.getElementById('prod-price').value) || 0);
+
+      const totalMeters = unitM * qty;
+      const rollsNeeded = Math.ceil(totalMeters / rollLen);
+      const unitCost = unitM * price;
+      const totalCost = totalMeters * price;
+
+      document.getElementById('prod-res-meters').textContent = `${fmtTR(totalMeters, 2)} m`;
+      document.getElementById('prod-res-rolls').textContent = `${rollsNeeded.toLocaleString('tr-TR')} rulo`;
+      document.getElementById('prod-res-unit-cost').textContent = `${fmtTR(unitCost, 4)} €/adet`;
+      document.getElementById('prod-res-total-cost').textContent = `${fmtTR(totalCost, 2)} €`;
+    }
+
+    // =========================================================================
+    // SEKME 3: 10 NUMUNE DOĞRULAMA (Örnek 7) & TERS ÇAP BULMA (Örnek 5)
+    // =========================================================================
+    function renderSampleInputs() {
+      const grid = document.getElementById('sample-inputs-grid');
+      grid.innerHTML = '';
+      defaultSamples.forEach((val, idx) => {
+        const div = document.createElement('div');
+        div.innerHTML = `
+          <label class="block text-[10px] font-semibold text-steel-500 mb-0.5">Numune #${idx + 1}</label>
+          <input type="number" step="0.001" min="0" value="${val}" oninput="calcVerification()"
+            class="sample-val-input w-full font-mono text-xs bg-steel-50 border border-steel-300 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-tealeng-500">
+        `;
+        grid.appendChild(div);
+      });
+    }
+
+    function parsePastedSamples() {
+      const raw = document.getElementById('paste-samples-input').value.trim();
+      if (!raw) return;
+      const matches = raw.match(/\d+[.,]?\d*/g);
+      if (!matches || matches.length === 0) {
+        showToast('Geçerli sayı bulunamadı.', 'warn');
+        return;
+      }
+      const inputs = document.querySelectorAll('.sample-val-input');
+      matches.slice(0, inputs.length).forEach((m, i) => {
+        inputs[i].value = parseFloat(m.replace(',', '.'));
+      });
+      calcVerification();
+      showToast(`${Math.min(matches.length, inputs.length)} adet numune ölçümü kutulara aktarıldı.`, 'success');
+    }
+
+    function loadSampleExample7() {
+      document.getElementById('verify-theo').value = '1.550';
+      const inputs = document.querySelectorAll('.sample-val-input');
+      inputs.forEach((inp, i) => {
+        inp.value = defaultSamples[i];
+      });
+      calcVerification();
+      showToast('Örnek 7 verileri yüklendi (Ortalama: 1,605 m, Sapma: %3,55).', 'success');
+    }
+
+    function calcVerification() {
+      const theo = Math.max(0.001, parseFloat(document.getElementById('verify-theo').value) || 1.550);
+      const inputs = document.querySelectorAll('.sample-val-input');
+      const vals = [];
+      inputs.forEach(inp => {
+        const v = parseFloat(inp.value);
+        if (!isNaN(v) && v > 0) vals.push(v);
+      });
+
+      if (vals.length === 0) return;
+
+      const sum = vals.reduce((a, b) => a + b, 0);
+      const avg = sum / vals.length;
+      const minV = Math.min(...vals);
+      const maxV = Math.max(...vals);
+      const variance = vals.reduce((acc, v) => acc + Math.pow(v - avg, 2), 0) / vals.length;
+      const stdDev = Math.sqrt(variance);
+      const devPct = ((avg - theo) / theo) * 100;
+
+      document.getElementById('verify-avg').textContent = `${fmtTR(avg, 3)} m/adet`;
+      const devEl = document.getElementById('verify-dev');
+      const sign = devPct >= 0 ? '+' : '';
+      devEl.textContent = `${sign}%${fmtTR(devPct, 2)}`;
+      devEl.className = `text-xl font-mono font-bold ${Math.abs(devPct) <= 5 ? 'text-emerald-600' : 'text-amber-600'}`;
+
+      document.getElementById('verify-range').textContent = `${fmtTR(minV, 3)} – ${fmtTR(maxV, 3)} m (σ=${fmtTR(stdDev, 3)})`;
+
+      const box = document.getElementById('verify-decision-box');
+      if (Math.abs(devPct) <= 5) {
+        box.className = "mt-4 p-3.5 rounded-lg border border-emerald-300 bg-emerald-50 text-emerald-900 text-xs leading-relaxed";
+        box.innerHTML = `<strong>BOM Kararı (Kabul Aralığında):</strong> Fiili ortalama (<strong>${fmtTR(avg, 3)} m</strong>) teorik hedeften <strong>%${fmtTR(Math.abs(devPct), 2)}</strong> sapma göstermektedir. Ölçümde kesim ve sabitleme zaten dahilse fire ikinci kez eklenmemelidir.`;
+      } else {
+        box.className = "mt-4 p-3.5 rounded-lg border border-amber-300 bg-amber-50 text-amber-900 text-xs leading-relaxed";
+        box.innerHTML = `<strong>BOM Kararı (İnceleme Gerekli):</strong> Sapma oranı <strong>%${fmtTR(Math.abs(devPct), 2)}</strong> seviyesindedir. Demet çapı sıkıştırması, gerçek sarım adımı ve uç sabitleme turları sahada yeniden doğrulanmalıdır.`;
+      }
+    }
+
+    function calcReverseDiameter() {
+      const L = Math.max(1, parseFloat(document.getElementById('rev-L').value) || 710);
+      const P = Math.max(0.1, parseFloat(document.getElementById('rev-P').value) || 15);
+      const Tm = Math.max(0.001, parseFloat(document.getElementById('rev-T-m').value) || 1.665);
+      const Tmm = Tm * 1000;
+
+      const outEl = document.getElementById('rev-D-out');
+      if (Tmm <= L) {
+        outEl.textContent = 'Geçersiz (T ≤ L)';
+        outEl.className = 'text-xl font-mono font-bold text-amber-400 mt-1';
+        return;
+      }
+
+      const D = (P / Math.PI) * Math.sqrt(Math.pow(Tmm / L, 2) - 1);
+      outEl.textContent = `${fmtTR(D, 2)} mm`;
+      outEl.className = 'text-3xl font-mono font-bold text-cyan-300 mt-1';
+    }
+
+    // Sayfa Yüklendiğinde Başlat
+    window.addEventListener('DOMContentLoaded', () => {
+      renderSampleInputs();
+      loadSelectedPreset();
+      calcProduction();
+      calcVerification();
+      calcReverseDiameter();
+    });
+  </script>
+</body>
+</html>
