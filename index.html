@@ -4,9 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Teleset – Kablo Gruplarında Bant Tüketimi & BOM Hesaplayıcı</title>
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Google Fonts: Inter & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -19,80 +17,42 @@
             mono: ['JetBrains Mono', 'monospace'],
           },
           colors: {
-            navy: {
-              850: '#132238',
-              900: '#0d192b',
-              950: '#08101c',
-            },
-            tealeng: {
-              500: '#007791',
-              600: '#005f73',
-              700: '#0a4a5c',
-            },
-            steel: {
-              50: '#f8fafc',
-              100: '#f1f5f9',
-              200: '#e2e8f0',
-              300: '#cbd5e1',
-              500: '#64748b',
-              700: '#334155',
-              800: '#1e293b',
-            }
+            navy: { 850: '#132238', 900: '#0d192b', 950: '#08101c' },
+            tealeng: { 500: '#007791', 600: '#005f73', 700: '#0a4a5c' },
+            steel: { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1', 500: '#64748b', 700: '#334155', 800: '#1e293b' }
           }
         }
       }
     }
   </script>
   <style>
-    body {
-      background-color: #f1f5f9;
-      color: #0f172a;
-    }
+    body { background-color: #f1f5f9; color: #0f172a; }
     input[type="number"]::-webkit-inner-spin-button,
-    input[type="number"]::-webkit-outer-spin-button {
-      opacity: 1;
-    }
-    .tab-active {
-      border-bottom: 3px solid #007791;
-      color: #0d192b;
-      font-weight: 600;
-      background-color: #ffffff;
-    }
-    /* PDF / Yazdırma Görünümü Ayarları */
+    input[type="number"]::-webkit-outer-spin-button { opacity: 1; }
+    .tab-active { border-bottom: 3px solid #007791; color: #0d192b; font-weight: 600; background-color: #ffffff; }
+    .print-only { display: none; }
+    .svg-zone-hit { cursor: pointer; transition: opacity 0.15s ease; }
+    .svg-zone-hit:hover { opacity: 0.92; }
+
     @media print {
-      body {
-        background-color: #ffffff !important;
-        color: #0f172a !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-      }
-      .no-print, nav, #toast-container {
-        display: none !important;
-      }
-      header {
-        background-color: #0d192b !important;
-        color: #ffffff !important;
-        box-shadow: none !important;
-      }
-      main {
-        max-width: 100% !important;
-        padding: 12px 0 !important;
-      }
-      details {
-        display: block !important;
-      }
-      details > summary {
-        list-style: none !important;
-      }
-      .shadow-sm, .shadow-md {
-        box-shadow: none !important;
-      }
+      @page { size: A4 portrait; margin: 10mm; }
+      body { background-color: #ffffff !important; color: #0f172a !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+      .no-print, nav, #toast-container { display: none !important; }
+      .print-only { display: block !important; }
+      .print-full { grid-column: span 12 / span 12 !important; }
+      header { background-color: #0d192b !important; color: #ffffff !important; box-shadow: none !important; padding: 8px 0 !important; }
+      main { max-width: 100% !important; padding: 10px 0 !important; }
+      details { display: block !important; }
+      details > summary { list-style: none !important; }
+      .shadow-sm, .shadow-md { box-shadow: none !important; }
+      input { border: none !important; background: transparent !important; padding: 0 !important; font-weight: 600 !important; }
+      svg { min-width: 0 !important; width: 100% !important; }
     }
   </style>
 </head>
 <body class="min-h-screen flex flex-col antialiased selection:bg-tealeng-500 selection:text-white">
 
-  <!-- Üst Başlık ve Hızlı Örnek Seçici -->
+  <!-- Üst Başlık -->
   <header class="bg-navy-900 text-white shadow-md border-b border-steel-700">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
       <div class="flex items-start sm:items-center gap-3">
@@ -103,116 +63,163 @@
         </div>
         <div>
           <div class="flex items-center gap-2 flex-wrap">
-            <h1 class="text-lg sm:text-xl font-bold tracking-tight">Kablo Gruplarında Bant Tüketimi & BOM Hesaplayıcı</h1>
+            <h1 class="text-lg sm:text-xl font-bold tracking-tight">Teleset – Bant Tüketimi & BOM Hesaplayıcı</h1>
             <span class="text-[11px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-tealeng-600/40 text-cyan-200 border border-cyan-500/30">Rev. 02</span>
           </div>
-          <p class="text-xs sm:text-sm text-steel-300 mt-0.5">Sık, Seyrek ve Noktasal Bantlama | Kolay Kullanımlı Mühendislik & Üretim Aracı</p>
+          <p class="text-xs sm:text-sm text-steel-300 mt-0.5">Sık, Seyrek ve Noktasal Bantlama | Mühendislik & Üretim Doğrulama Aracı</p>
         </div>
       </div>
 
-      <!-- Hızlı Örnek Yükleme Seçici & PDF Çıktı Butonu -->
+      <!-- Hızlı Şablonlar & PDF -->
       <div class="no-print flex flex-wrap items-center gap-2">
-        <label for="preset-select" class="text-xs text-steel-300 font-medium">Hazır Eğitim Örneği:</label>
+        <label for="preset-select" class="text-xs text-steel-300 font-medium">Hızlı Şablon:</label>
         <div class="flex flex-wrap items-center gap-1.5">
           <select id="preset-select" class="bg-navy-850 border border-steel-600 text-white text-xs sm:text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-400">
-            <option value="ex4">Örnek 4: Karma Çaplı Demet (D=10 & D=4 mm)</option>
-            <option value="ex1">Örnek 1: Sık Bantlama, Gerçek %0 Bindirme</option>
-            <option value="ex2">Örnek 2: Sık Bantlama, Gerçek %50 Bindirme</option>
-            <option value="ex3">Örnek 3: Seyrek Bantlama, Ölçülen Adım (P=30)</option>
-            <option value="ex6_var">Bölüm 6: Değişken Çap (Her İki Bölge P=15 mm)</option>
-            <option value="spot_nb">Özel: Noktasal Bantlama (NB - D=10 mm, 2 Tur)</option>
+            <option value="clean">Yeni Boş Hesap (Tek Bölge)</option>
+            <option value="ex4">Karma Çaplı Demet (Örnek 4: D=10 & D=4)</option>
+            <option value="ex1">Sık Sarım %0 Bindirme (Örnek 1)</option>
+            <option value="ex2">Sık Sarım %50 Bindirme (Örnek 2)</option>
+            <option value="ex3">Seyrek Sarım P=30 mm (Örnek 3)</option>
+            <option value="ex6_var">Değişken Çap P=15 mm (Bölüm 6)</option>
+            <option value="spot_nb">Noktasal Bantlama (NB - Çevresel)</option>
           </select>
-          <button type="button" onclick="loadSelectedPreset()" class="bg-tealeng-500 hover:bg-tealeng-600 active:scale-[0.99] text-white text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-lg transition shadow-sm cursor-pointer">
-            Yükle
+          <button type="button" onclick="loadSelectedPreset()" class="bg-tealeng-500 hover:bg-tealeng-600 text-white text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-lg transition shadow-sm cursor-pointer">
+            Uygula
           </button>
-          <button type="button" onclick="exportToPdf()" class="bg-white hover:bg-steel-100 active:scale-[0.99] text-navy-900 text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-lg transition shadow-sm flex items-center gap-1.5 cursor-pointer" title="Raporu PDF olarak kaydet veya yazdır">
+          <button type="button" onclick="exportToPdf()" class="bg-white hover:bg-steel-100 text-navy-900 text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-lg transition shadow-sm flex items-center gap-1.5 cursor-pointer">
             <svg class="w-4 h-4 text-rose-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z"/>
             </svg>
-            PDF Çıktı Al
+            PDF Kayıt Formu
           </button>
         </div>
       </div>
     </div>
 
-    <!-- Sekme Navigasyonu (3 Net Sekme) -->
+    <!-- Sekme Navigasyonu -->
     <nav class="no-print bg-steel-100 border-t border-steel-300">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 flex overflow-x-auto no-scrollbar">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 flex overflow-x-auto">
         <button type="button" id="tab-btn-calc" onclick="switchTab('calc')" class="tab-active px-4 sm:px-6 py-3 text-xs sm:text-sm whitespace-nowrap transition flex items-center gap-2 border-r border-steel-200 cursor-pointer">
           <span class="w-2 h-2 rounded-full bg-tealeng-500"></span>
-          1. Bant Boyu Hesapla (BOM)
+          1. Bant Boyu & BOM Hesabı
         </button>
         <button type="button" id="tab-btn-prod" onclick="switchTab('prod')" class="px-4 sm:px-6 py-3 text-xs sm:text-sm text-steel-700 hover:bg-white/70 whitespace-nowrap transition flex items-center gap-2 border-r border-steel-200 cursor-pointer">
           <span>2. Seri Üretim & Rulo Maliyeti</span>
         </button>
         <button type="button" id="tab-btn-verify" onclick="switchTab('verify')" class="px-4 sm:px-6 py-3 text-xs sm:text-sm text-steel-700 hover:bg-white/70 whitespace-nowrap transition flex items-center gap-2 cursor-pointer">
-          <span>3. Doğrulama & Ters Çap</span>
+          <span>3. 10 Numune Doğrulama & Ters Çap</span>
         </button>
       </div>
     </nav>
   </header>
 
-  <!-- Bildirim Alanı (Toast) -->
   <div id="toast-container" class="no-print fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm"></div>
 
-  <!-- Ana İçerik -->
   <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6">
 
     <!-- =====================================================================
-         SEKME 1: BANT BOYU HESAPLA (BOM)
+         SEKME 1: BANT BOYU & BOM HESABI
     ====================================================================== -->
     <section id="view-calc" class="space-y-5">
 
+      <!-- Bölüm 9: Ürün & Proses Künyesi -->
+      <div class="bg-white rounded-xl border border-steel-200 p-4 shadow-sm">
+        <div class="flex items-center justify-between mb-2.5">
+          <span class="text-xs font-bold uppercase tracking-wider text-navy-900">Ürün & Kayıt Bilgileri (Bölüm 9 Formu)</span>
+          <span class="text-[11px] text-steel-500 no-print">PDF çıktısında otomatik üst bilgi olarak basılır</span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 text-xs">
+          <div>
+            <label class="block text-[11px] text-steel-500 mb-0.5">Ürün Kodu / Rev.</label>
+            <input type="text" id="meta-part" placeholder="Örn: 482910-R01" class="w-full font-mono bg-steel-50 border border-steel-200 rounded-md px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-tealeng-500">
+          </div>
+          <div>
+            <label class="block text-[11px] text-steel-500 mb-0.5">Bant Kodu / Tipi</label>
+            <input type="text" id="meta-tape" placeholder="Örn: Bez Bant 15mm" class="w-full bg-steel-50 border border-steel-200 rounded-md px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-tealeng-500">
+          </div>
+          <div>
+            <label class="block text-[11px] text-steel-500 mb-0.5">Hazırlayan</label>
+            <input type="text" id="meta-author" placeholder="Ad Soyad" class="w-full bg-steel-50 border border-steel-200 rounded-md px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-tealeng-500">
+          </div>
+          <div>
+            <label class="block text-[11px] text-steel-500 mb-0.5">Onaylayan</label>
+            <input type="text" id="meta-approver" placeholder="Metot / Kalite" class="w-full bg-steel-50 border border-steel-200 rounded-md px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-tealeng-500">
+          </div>
+          <div>
+            <label class="block text-[11px] text-steel-500 mb-0.5">Tarih</label>
+            <input type="text" id="meta-date" class="w-full font-mono bg-steel-50 border border-steel-200 rounded-md px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-tealeng-500">
+          </div>
+        </div>
+      </div>
+
+      <!-- Tam Genişlikli Ayrıntılı Canlı Kablo Demeti Şeması -->
+      <div class="bg-white rounded-xl border border-steel-200 p-4 sm:p-5 shadow-sm">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <div>
+            <h2 class="text-sm font-bold uppercase tracking-wider text-navy-900">Canlı Kablo Demeti & Sarım Detay Görünümü</h2>
+            <p class="text-xs text-steel-500 no-print">Gerçek helis açısı, çap geçişleri ve sabitleme halkaları anlık çizilir. Açınımını incelemek için herhangi bir bölgeye tıklayın.</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-3 text-[11px] text-steel-600 bg-steel-50 px-3 py-1.5 rounded-lg border border-steel-200">
+            <span class="flex items-center gap-1.5"><span class="w-3 h-2 rounded-xs bg-slate-800 inline-block"></span> Bez Bant</span>
+            <span class="flex items-center gap-1.5"><span class="w-3 h-2 rounded-xs bg-amber-500 inline-block"></span> Sabitleme Turu</span>
+            <span class="flex items-center gap-1.5"><span class="w-3 h-2 rounded-xs bg-gradient-to-r from-rose-500 via-amber-400 to-sky-500 inline-block"></span> Açık Kablo</span>
+            <span class="flex items-center gap-1.5"><span class="w-3 h-2 rounded-xs bg-cyan-500/40 border border-cyan-600 inline-block"></span> Seçili Bölge</span>
+          </div>
+        </div>
+        <div class="bg-steel-50 rounded-xl border border-steel-200 p-2 sm:p-3 overflow-x-auto">
+          <svg id="harness-svg" viewBox="0 0 920 225" class="w-full min-w-[660px] h-auto"></svg>
+        </div>
+      </div>
+
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
-        <!-- Sol Kolon: Bölge Kartları + Genel Sabitleme ve Fire -->
-        <div class="lg:col-span-7 space-y-4">
+        <!-- Sol Kolon (Yazdırmada gizlenir; temiz PDF çıktısı için) -->
+        <div class="no-print lg:col-span-7 space-y-4">
 
-          <!-- Bölge Kartları Başlığı -->
+          <!-- Bölge Başlığı -->
           <div class="flex flex-wrap items-center justify-between gap-2 bg-white px-4 py-3 rounded-xl border border-steel-200 shadow-sm">
             <div>
-              <h2 class="text-base font-bold text-navy-900">Kablo Demeti Sarım Bölgeleri</h2>
-              <p class="text-xs text-steel-500">Önce sarım tipini seçin, ardından ölçüleri girin. Farklı çaplar için yeni bölge ekleyin.</p>
+              <h2 class="text-base font-bold text-navy-900">1. Kablo Demeti Bölgeleri</h2>
+              <p class="text-xs text-steel-500">Çap veya sarım tipi değişen her kesit için ayrı bölge ekleyin.</p>
             </div>
-            <div class="no-print flex items-center gap-2">
+            <div class="flex items-center gap-2">
               <button type="button" onclick="resetToCleanSingleZone()" class="bg-steel-100 hover:bg-steel-200 text-navy-900 border border-steel-300 text-xs font-semibold px-3 py-2 rounded-lg transition cursor-pointer">
-                Sıfırla
+                Temizle
               </button>
               <button type="button" onclick="addZone()" class="bg-navy-900 hover:bg-navy-850 text-white text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-lg transition flex items-center gap-1.5 shadow-sm cursor-pointer">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-                Yeni Bölge Ekle
+                Bölge Ekle
               </button>
             </div>
           </div>
 
-          <!-- Dinamik Bölge Listesi -->
+          <!-- Dinamik Bölge Kartları -->
           <div id="zones-container" class="space-y-4"></div>
 
-          <!-- Genel Sabitleme ve Fire Kartı -->
+          <!-- Genel Uç Sabitleme ve Fire -->
           <div class="bg-white rounded-xl border border-steel-200 p-4 sm:p-5 shadow-sm">
             <div class="flex items-center justify-between border-b border-steel-100 pb-3 mb-4">
               <div>
-                <h3 class="text-sm font-bold text-navy-900">Genel Uç Sabitlemeleri & Fire İlavesi</h3>
-                <p class="text-xs text-steel-500">Başlangıç, bitiş veya çap geçişindeki çevresel turlar ve fire oranı.</p>
+                <h3 class="text-sm font-bold text-navy-900">2. Uç Sabitlemeleri & Fire Oranı</h3>
+                <p class="text-xs text-steel-500">Başlangıç/bitiş çevresel turları ve proses fire oranı.</p>
               </div>
               <span class="text-xs font-mono bg-steel-100 text-steel-700 px-2.5 py-1 rounded-md border border-steel-200">T_toplam</span>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <!-- Genel Ek Sabitleme Turları -->
               <div class="bg-steel-50 p-3.5 rounded-lg border border-steel-200">
                 <div class="flex items-center justify-between mb-1">
-                  <label class="block text-xs font-semibold text-navy-900">Genel Ek Sabitleme Turu (n)</label>
-                  <div class="no-print flex gap-1">
-                    <button type="button" onclick="setGlobalTurns(0)" class="text-[11px] font-mono bg-white hover:bg-steel-200 border border-steel-300 px-1.5 py-0.5 rounded cursor-pointer">+0</button>
-                    <button type="button" onclick="setGlobalTurns(1)" class="text-[11px] font-mono bg-white hover:bg-steel-200 border border-steel-300 px-1.5 py-0.5 rounded cursor-pointer">+1</button>
-                    <button type="button" onclick="setGlobalTurns(2)" class="text-[11px] font-mono bg-white hover:bg-steel-200 border border-steel-300 px-1.5 py-0.5 rounded cursor-pointer">+2</button>
+                  <label class="block text-xs font-semibold text-navy-900">Başlangıç + Bitiş Turu (n)</label>
+                  <div class="flex gap-1">
+                    <button type="button" onclick="setGlobalTurns(0)" class="text-[11px] font-mono bg-white hover:bg-steel-200 border border-steel-300 px-1.5 py-0.5 rounded cursor-pointer">0</button>
+                    <button type="button" onclick="setGlobalTurns(1)" class="text-[11px] font-mono bg-white hover:bg-steel-200 border border-steel-300 px-1.5 py-0.5 rounded cursor-pointer">1</button>
+                    <button type="button" onclick="setGlobalTurns(2)" class="text-[11px] font-mono bg-white hover:bg-steel-200 border border-steel-300 px-1.5 py-0.5 rounded cursor-pointer">2</button>
                   </div>
                 </div>
-                <p class="text-[11px] text-steel-500 mb-2">Örn. başlangıçta 1 tur + bitişte 1 tur = 2 tur.</p>
+                <p class="text-[11px] text-steel-500 mb-2">Şemada uçlarda turuncu halkalarla gösterilir.</p>
                 <div class="flex gap-2">
-                  <div class="flex-1">
-                    <span class="text-[11px] text-steel-500 block mb-0.5">Tur Adedi (n)</span>
+                  <div class="w-24">
+                    <span class="text-[11px] text-steel-500 block mb-0.5">Tur (n)</span>
                     <input type="number" id="global-n" min="0" step="0.5" value="2" oninput="recalculateAll()" class="w-full font-mono text-sm bg-white border border-steel-300 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-tealeng-500">
                   </div>
                   <div class="flex-1">
@@ -230,24 +237,23 @@
                 </div>
               </div>
 
-              <!-- Fire İlavesi -->
               <div class="bg-steel-50 p-3.5 rounded-lg border border-steel-200">
                 <div class="flex items-center justify-between mb-1">
                   <label class="block text-xs font-semibold text-navy-900">Fire Oranı f (%)</label>
-                  <div class="no-print flex gap-1">
+                  <div class="flex gap-1">
                     <button type="button" onclick="setScrapPct(0)" class="text-[11px] font-mono bg-white hover:bg-steel-200 border border-steel-300 px-1.5 py-0.5 rounded cursor-pointer">%0</button>
                     <button type="button" onclick="setScrapPct(3)" class="text-[11px] font-mono bg-white hover:bg-steel-200 border border-steel-300 px-1.5 py-0.5 rounded cursor-pointer">%3</button>
                     <button type="button" onclick="setScrapPct(5)" class="text-[11px] font-mono bg-white hover:bg-steel-200 border border-steel-300 px-1.5 py-0.5 rounded cursor-pointer">%5</button>
                   </div>
                 </div>
-                <p class="text-[11px] text-steel-500 mb-2">Standart eğitim varsayımı %3'tür.</p>
+                <p class="text-[11px] text-steel-500 mb-2">Fiili ölçümde fire zaten varsa %0 seçin.</p>
                 <div class="flex gap-2">
                   <div class="w-24">
                     <span class="text-[11px] text-steel-500 block mb-0.5">Fire (%)</span>
                     <input type="number" id="scrap-pct" min="0" max="95" step="0.1" value="3" oninput="recalculateAll()" class="w-full font-mono text-sm bg-white border border-steel-300 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-tealeng-500">
                   </div>
                   <div class="flex-1">
-                    <span class="text-[11px] text-steel-500 block mb-0.5">Hesaplama Yöntemi</span>
+                    <span class="text-[11px] text-steel-500 block mb-0.5">Formül Yöntemi</span>
                     <select id="scrap-mode" onchange="recalculateAll()" class="w-full text-xs bg-white border border-steel-300 rounded-lg px-2 py-2 focus:outline-none focus:ring-2 focus:ring-tealeng-500">
                       <option value="net">Net Üzerine İlave: × (1 + f)</option>
                       <option value="gross">Brüt Üzerinden: ÷ (1 − f)</option>
@@ -260,38 +266,36 @@
 
         </div>
 
-        <!-- Sağ Kolon: Canlı Sonuçlar, Şema & Tek Tıkla Excel -->
-        <div class="lg:col-span-5 space-y-4">
+        <!-- Sağ Kolon -->
+        <div class="lg:col-span-5 print-full space-y-4">
 
           <!-- Özet Sonuç Kartı -->
           <div class="bg-white rounded-xl border-2 border-tealeng-500/40 p-5 shadow-sm">
             <div class="flex items-center justify-between mb-3">
-              <span class="text-xs font-bold uppercase tracking-wider text-tealeng-700">Toplam Bant Tüketimi</span>
+              <span class="text-xs font-bold uppercase tracking-wider text-tealeng-700">Birim Bant Tüketimi (BOM)</span>
               <span id="summary-zone-count" class="text-xs font-mono bg-tealeng-500/10 text-tealeng-700 px-2.5 py-0.5 rounded-full font-semibold">1 Bölge</span>
             </div>
 
-            <!-- Ana Metrikler -->
             <div class="grid grid-cols-2 gap-3 mb-4">
               <div class="bg-steel-50 p-3.5 rounded-xl border border-steel-200">
-                <div class="text-xs text-steel-500 font-medium">Net Toplam (Firesiz)</div>
+                <div class="text-xs text-steel-500 font-medium">Net Tüketim (Firesiz)</div>
                 <div id="res-net-total" class="text-2xl font-mono font-bold text-navy-900 mt-1">0,000 <span class="text-sm font-normal text-steel-500">m</span></div>
                 <div id="res-net-mm" class="text-[11px] font-mono text-steel-500 mt-0.5">0,0 mm</div>
               </div>
               <div class="bg-tealeng-500 text-white p-3.5 rounded-xl shadow-sm">
-                <div class="text-xs text-cyan-100 font-medium">BOM Değeri (Fire Dahil)</div>
+                <div class="text-xs text-cyan-100 font-medium">Onaylı BOM (Fire Dahil)</div>
                 <div id="res-gross-total" class="text-2xl font-mono font-bold mt-1">0,000 <span class="text-sm font-normal text-cyan-100">m/adet</span></div>
                 <div id="res-scrap-added" class="text-[11px] font-mono text-cyan-100 mt-0.5">+0,000 m fire</div>
               </div>
             </div>
 
-            <!-- Alt Kırılım -->
             <div class="space-y-2 text-xs border-t border-steel-100 pt-3">
               <div class="flex justify-between text-steel-700">
-                <span>Bölgeler Toplamı:</span>
+                <span>Bölgeler (Spiral + Nokta):</span>
                 <span id="res-spiral-only" class="font-mono font-semibold">0,000 m</span>
               </div>
               <div class="flex justify-between text-steel-700">
-                <span>Ek Sabitleme Turları:</span>
+                <span>Toplam Sabitleme Turları:</span>
                 <span id="res-fixing-only" class="font-mono font-semibold">0,000 m</span>
               </div>
               <div class="flex justify-between text-steel-700">
@@ -301,74 +305,55 @@
             </div>
           </div>
 
-          <!-- Canlı SVG Görselleştirme (Kablo Demeti Şeması + Açılır Pisagor) -->
-          <div class="bg-white rounded-xl border border-steel-200 p-4 shadow-sm">
-            <div class="flex items-center justify-between mb-2">
-              <h3 class="text-xs font-bold uppercase tracking-wider text-navy-900">Kablo Demeti & Sarım Görünümü</h3>
-              <span class="text-[11px] text-steel-500">Canlı Önizleme</span>
+          <!-- Silindir Açınımı & Pisagor Diyagramı (Seçili Bölge) -->
+          <div class="no-print bg-white rounded-xl border border-steel-200 p-4 shadow-sm">
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-navy-900">1 Tur Açınım Geometrisi (Pisagor)</h3>
+              <select id="unfold-zone-select" onchange="selectUnfoldZone(parseInt(this.value, 10))" class="text-[11px] font-semibold bg-steel-100 border border-steel-200 text-navy-900 rounded-md px-2 py-1 focus:outline-none"></select>
             </div>
             <div class="bg-steel-50 rounded-lg border border-steel-200 p-2 overflow-hidden">
-              <svg id="harness-svg" viewBox="0 0 520 125" class="w-full h-auto"></svg>
+              <svg id="unfold-svg" viewBox="0 0 520 155" class="w-full h-auto"></svg>
             </div>
-
-            <!-- İsteğe Bağlı Açılır Silindir Yüzey Açınımı -->
-            <details class="no-print mt-3 border-t border-steel-100 pt-2.5 group">
-              <summary class="text-xs font-semibold text-tealeng-700 hover:text-tealeng-600 cursor-pointer flex items-center justify-between list-none">
-                <span>Geometrik Açınım Detayı (Pisagor Diyagramı)</span>
-                <span class="text-[11px] bg-steel-100 px-2 py-0.5 rounded text-steel-700 group-open:hidden">Göster ▾</span>
-                <span class="text-[11px] bg-steel-100 px-2 py-0.5 rounded text-steel-700 hidden group-open:inline">Gizle ▴</span>
-              </summary>
-              <div class="mt-2 bg-steel-50 rounded-lg border border-steel-200 p-2 overflow-hidden">
-                <svg id="unfold-svg" viewBox="0 0 520 155" class="w-full h-auto"></svg>
-              </div>
-            </details>
           </div>
 
-          <!-- Türkçe Excel & BOM Formül Kutusu (İsteğe Bağlı Açılır) -->
+          <!-- Çok Bölgeli Türkçe Excel Çıktısı -->
           <details class="no-print bg-navy-900 text-white rounded-xl border border-steel-700 p-4 shadow-sm group">
             <summary class="flex items-center justify-between gap-2 cursor-pointer list-none">
               <div>
-                <h3 class="text-xs font-bold uppercase tracking-wider text-cyan-300">Türkçe Excel Formülü (BOM)</h3>
-                <p class="text-[11px] text-steel-300 mt-0.5">1. bölge için doğrudan Excel'e yapıştırılabilir formül</p>
+                <h3 class="text-xs font-bold uppercase tracking-wider text-cyan-300">Türkçe Excel Formülleri (Bölüm 7)</h3>
+                <p class="text-[11px] text-steel-300 mt-0.5">Tek hücre formülü veya doğrudan yapıştırılabilir tablo</p>
               </div>
-              <div class="flex items-center gap-2">
-                <button type="button" onclick="event.stopPropagation(); copyExcelFormula()" class="bg-tealeng-500 hover:bg-tealeng-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition cursor-pointer">
-                  Kopyala
-                </button>
-                <span class="text-[11px] text-steel-300 group-open:hidden">Aç ▾</span>
-                <span class="text-[11px] text-steel-300 hidden group-open:inline">Gizle ▴</span>
-              </div>
+              <span class="text-[11px] text-steel-300 group-open:hidden">Aç ▾</span>
+              <span class="text-[11px] text-steel-300 hidden group-open:inline">Gizle ▴</span>
             </summary>
-            <div class="mt-3 pt-3 border-t border-steel-700">
-              <div class="bg-navy-950 border border-steel-700 rounded-lg p-2.5 font-mono text-[11px] text-emerald-300 overflow-x-auto whitespace-nowrap" id="excel-formula-display">
-                =(B2/C2*KAREKÖK((Pİ()*A2)^2+C2^2)+D2*Pİ()*A2)*(1+E2)/1000
+            <div class="mt-3 pt-3 border-t border-steel-700 space-y-2.5">
+              <div class="flex flex-wrap gap-2">
+                <button type="button" onclick="copyExcelFormula()" class="bg-tealeng-500 hover:bg-tealeng-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition cursor-pointer">
+                  Formülü Kopyala
+                </button>
+                <button type="button" onclick="copyExcelTSV()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition cursor-pointer">
+                  Excel Tablosu Kopyala (A1'e Yapıştır)
+                </button>
               </div>
-              <p class="text-[11px] text-steel-400 mt-1.5">Hücreler: A2=Çap D, B2=Boy L, C2=Adım P, D2=Ek Tur n, E2=Fire f</p>
+              <pre class="bg-navy-950 border border-steel-700 rounded-lg p-2.5 font-mono text-[11px] text-emerald-300 overflow-x-auto leading-relaxed" id="excel-formula-display"></pre>
+              <p class="text-[11px] text-steel-400">Standart sütunlar: A=Çap D, B=Boy L, C=Adım P, D=Ek Tur n, E=Fire f</p>
             </div>
           </details>
 
         </div>
       </div>
 
-      <!-- Detaylı Bölge Döküm Tablosu -->
+      <!-- Döküm Tablosu -->
       <details id="bom-table-details" open class="bg-white rounded-xl border border-steel-200 shadow-sm overflow-hidden group">
         <summary class="px-5 py-3.5 border-b border-steel-200 flex flex-wrap items-center justify-between gap-2 bg-steel-50 cursor-pointer list-none">
-          <div class="flex items-center gap-2">
-            <div>
-              <h3 class="text-sm font-bold text-navy-900">Bölge Bazlı Hesap Dökümü (BOM Tablosu)</h3>
-              <p class="text-xs text-steel-500">Tüm ara değerler yuvarlanmadan hesaplanır; özet kopyalamak veya PDF almak için butonları kullanın.</p>
-            </div>
+          <div>
+            <h3 class="text-sm font-bold text-navy-900">Bölge Bazlı Hesap Dökümü (BOM Tablosu)</h3>
+            <p class="text-xs text-steel-500">Ara değerler yuvarlanmadan hesaplanır; standart proses kodları otomatik atanır.</p>
           </div>
           <div class="no-print flex items-center gap-2">
-            <button type="button" onclick="event.stopPropagation(); exportToPdf()" class="text-xs font-semibold text-white bg-tealeng-600 hover:bg-tealeng-700 px-3 py-1.5 rounded-lg transition flex items-center gap-1 cursor-pointer">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z"/></svg>
-              PDF Kaydet
-            </button>
             <button type="button" onclick="event.stopPropagation(); copySummaryTable()" class="text-xs font-semibold text-navy-900 bg-white hover:bg-steel-100 border border-steel-300 px-3 py-1.5 rounded-lg transition cursor-pointer">
-              Özeti Kopyala
+              Metin Özeti Kopyala
             </button>
-            <span class="text-xs font-semibold text-tealeng-700 px-2 py-1 rounded bg-white border border-steel-200 group-open:hidden">Aç ▾</span>
-            <span class="text-xs font-semibold text-steel-500 px-2 py-1 rounded bg-white border border-steel-200 hidden group-open:inline">Gizle ▴</span>
           </div>
         </summary>
         <div class="overflow-x-auto">
@@ -376,57 +361,71 @@
             <thead>
               <tr class="bg-steel-100 text-steel-700 border-b border-steel-200 text-xs uppercase">
                 <th class="py-2.5 px-4 font-semibold">Bölge / Kalem</th>
-                <th class="py-2.5 px-4 font-semibold">Sarım Tipi</th>
+                <th class="py-2.5 px-4 font-semibold">Proses Kodu</th>
                 <th class="py-2.5 px-4 font-semibold text-right">Çap D (mm)</th>
                 <th class="py-2.5 px-4 font-semibold text-right">Boy L / Nokta</th>
                 <th class="py-2.5 px-4 font-semibold text-right">Adım P (mm)</th>
-                <th class="py-2.5 px-4 font-semibold text-right">Tur Sayısı N</th>
+                <th class="py-2.5 px-4 font-semibold text-right">Tur N</th>
                 <th class="py-2.5 px-4 font-semibold text-right">Tüketim (m)</th>
               </tr>
             </thead>
-            <tbody id="breakdown-tbody" class="divide-y divide-steel-100 font-mono text-xs sm:text-sm">
-            </tbody>
+            <tbody id="breakdown-tbody" class="divide-y divide-steel-100 font-mono text-xs sm:text-sm"></tbody>
           </table>
         </div>
       </details>
 
+      <!-- Sadece PDF / Yazdırma Görünümünde Çıkan Bölüm 9 İmza Bloğu -->
+      <div class="print-only bg-white border border-steel-300 rounded-xl p-4 mt-4">
+        <div class="grid grid-cols-3 gap-6 text-xs text-steel-700">
+          <div class="border-r border-steel-200 pr-4">
+            <div class="font-bold text-navy-900 mb-6">Hazırlayan / Ölçen</div>
+            <div class="border-t border-steel-300 pt-1 text-[11px] text-steel-500">İmza & Tarih</div>
+          </div>
+          <div class="border-r border-steel-200 pr-4">
+            <div class="font-bold text-navy-900 mb-6">Kontrol Eden (Metot / Üretim)</div>
+            <div class="border-t border-steel-300 pt-1 text-[11px] text-steel-500">İmza & Tarih</div>
+          </div>
+          <div>
+            <div class="font-bold text-navy-900 mb-6">BOM Onayı</div>
+            <div class="border-t border-steel-300 pt-1 text-[11px] text-steel-500">İmza & Tarih</div>
+          </div>
+        </div>
+      </div>
+
     </section>
 
     <!-- =====================================================================
-         SEKME 2: SERİ ÜRETİM, RULO İHTİYACI & MALİYET (Örnek 6)
+         SEKME 2: SERİ ÜRETİM & MALİYET
     ====================================================================== -->
     <section id="view-prod" class="hidden space-y-6">
       <div class="bg-white rounded-xl border border-steel-200 p-5 sm:p-6 shadow-sm">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-steel-100 pb-4 mb-5">
           <div>
-            <h2 class="text-base sm:text-lg font-bold text-navy-900">Seri Üretim Rulo İhtiyacı ve Maliyet Analizi</h2>
+            <h2 class="text-base sm:text-lg font-bold text-navy-900">Seri Üretim Rulo İhtiyacı & Maliyet Analizi</h2>
             <p class="text-xs text-steel-500">1. sekmedeki fire dahil birim BOM tüketimi otomatik olarak aktarılır.</p>
           </div>
           <button type="button" onclick="loadOrderExample6()" class="no-print text-xs font-semibold bg-steel-100 hover:bg-steel-200 text-navy-900 px-3 py-1.5 rounded-lg border border-steel-300 transition self-start cursor-pointer">
-            Örnek 6 Değerlerini Yükle (10.000 Adet)
+            Örnek 6 Verilerini Yükle (10.000 Adet)
           </button>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <div class="bg-steel-50 p-3.5 rounded-xl border border-steel-200">
             <label class="block text-xs font-semibold text-navy-900 mb-1">Birim BOM Tüketimi (m/adet)</label>
-            <input type="number" id="prod-unit-m" step="0.0001" min="0" value="1.5281" oninput="calcProduction()" class="w-full font-mono text-sm bg-white border border-steel-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-tealeng-500">
+            <input type="number" id="prod-unit-m" step="0.00001" min="0" value="1.52812" oninput="calcProduction()" class="w-full font-mono text-sm bg-white border border-steel-300 rounded-lg px-3 py-2">
             <button type="button" onclick="syncUnitFromCalc()" class="no-print mt-1.5 text-[11px] text-tealeng-700 font-semibold hover:underline cursor-pointer">← 1. Sekmeden Güncel Değeri Al</button>
           </div>
-
           <div class="bg-steel-50 p-3.5 rounded-xl border border-steel-200">
             <label class="block text-xs font-semibold text-navy-900 mb-1">Sipariş Miktarı (Adet)</label>
-            <input type="number" id="prod-qty" step="1" min="1" value="10000" oninput="calcProduction()" class="w-full font-mono text-sm bg-white border border-steel-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-tealeng-500">
+            <input type="number" id="prod-qty" step="1" min="1" value="10000" oninput="calcProduction()" class="w-full font-mono text-sm bg-white border border-steel-300 rounded-lg px-3 py-2">
           </div>
-
           <div class="bg-steel-50 p-3.5 rounded-xl border border-steel-200">
             <label class="block text-xs font-semibold text-navy-900 mb-1">Nominal Rulo Boyu (m/rulo)</label>
-            <input type="number" id="prod-roll-len" step="1" min="1" value="25" oninput="calcProduction()" class="w-full font-mono text-sm bg-white border border-steel-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-tealeng-500">
+            <input type="number" id="prod-roll-len" step="1" min="1" value="25" oninput="calcProduction()" class="w-full font-mono text-sm bg-white border border-steel-300 rounded-lg px-3 py-2">
           </div>
-
           <div class="bg-steel-50 p-3.5 rounded-xl border border-steel-200">
             <label class="block text-xs font-semibold text-navy-900 mb-1">Birim Bant Fiyatı (€ / m)</label>
-            <input type="number" id="prod-price" step="0.001" min="0" value="0.08" oninput="calcProduction()" class="w-full font-mono text-sm bg-white border border-steel-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-tealeng-500">
+            <input type="number" id="prod-price" step="0.001" min="0" value="0.08" oninput="calcProduction()" class="w-full font-mono text-sm bg-white border border-steel-300 rounded-lg px-3 py-2">
           </div>
         </div>
 
@@ -435,51 +434,52 @@
             <div class="text-xs text-steel-300">Toplam Bant İhtiyacı</div>
             <div id="prod-res-meters" class="text-2xl font-mono font-bold mt-1 text-cyan-300">15.281,20 m</div>
           </div>
-
           <div class="bg-tealeng-600 text-white p-4 rounded-xl">
             <div class="text-xs text-cyan-100">Rulo İhtiyacı (Yukarı Yuvarla)</div>
             <div id="prod-res-rolls" class="text-2xl font-mono font-bold mt-1">612 rulo</div>
+            <div id="prod-res-roll-cost" class="text-[11px] font-mono text-cyan-100 mt-1">Rulo alım tutarı: 1.224,00 €</div>
           </div>
-
           <div class="bg-steel-50 p-4 rounded-xl border border-steel-200">
             <div class="text-xs text-steel-500 font-medium">Birim Bant Maliyeti</div>
             <div id="prod-res-unit-cost" class="text-2xl font-mono font-bold text-navy-900 mt-1">0,1222 €/adet</div>
           </div>
-
           <div class="bg-steel-50 p-4 rounded-xl border border-steel-200">
             <div class="text-xs text-steel-500 font-medium">Toplam Tüketim Maliyeti</div>
             <div id="prod-res-total-cost" class="text-2xl font-mono font-bold text-navy-900 mt-1">1.222,50 €</div>
+            <div class="text-[11px] text-steel-500 mt-1">Rulo satın alma yuvarlaması hariç</div>
           </div>
         </div>
       </div>
     </section>
 
     <!-- =====================================================================
-         SEKME 3: DOĞRULAMA & TERS ÇAP BULMA (Örnek 5 & Örnek 7)
+         SEKME 3: DOĞRULAMA & TERS ÇAP
     ====================================================================== -->
     <section id="view-verify" class="hidden space-y-6">
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-        <!-- Sol: 10 Numune Doğrulama -->
         <div class="lg:col-span-7 bg-white rounded-xl border border-steel-200 p-5 shadow-sm">
           <div class="flex flex-wrap items-center justify-between gap-2 border-b border-steel-100 pb-3 mb-4">
             <div>
               <h2 class="text-base font-bold text-navy-900">Üretim Doğrulama (10 Numune Analizi)</h2>
-              <p class="text-xs text-steel-500">Fiili ölçümler ile teorik BOM değerini karşılaştırın.</p>
+              <p class="text-xs text-steel-500">Fiili ölçümler ile teorik BOM değerini karşılaştırın (Bölüm 8 & Örnek 7).</p>
             </div>
             <button type="button" onclick="loadSampleExample7()" class="no-print text-xs font-semibold bg-steel-100 hover:bg-steel-200 text-navy-900 px-3 py-1.5 rounded-lg border border-steel-300 transition cursor-pointer">
               Örnek 7 Verilerini Yükle
             </button>
           </div>
 
-          <div class="mb-4">
-            <label class="block text-xs font-semibold text-navy-900 mb-1">Teorik Net Hedef Tüketim (m/adet)</label>
-            <input type="number" id="verify-theo" step="0.001" min="0.001" value="1.550" oninput="calcVerification()" class="w-48 font-mono text-sm bg-steel-50 border border-steel-300 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-tealeng-500">
+          <div class="mb-4 flex flex-wrap items-end gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-navy-900 mb-1">Teorik Net Hedef (m/adet)</label>
+              <input type="number" id="verify-theo" step="0.001" min="0.001" value="1.550" oninput="calcVerification()" class="w-44 font-mono text-sm bg-steel-50 border border-steel-300 rounded-lg px-3 py-1.5">
+            </div>
+            <button type="button" onclick="syncTheoFromCalc()" class="no-print text-xs font-semibold text-tealeng-700 bg-tealeng-500/10 hover:bg-tealeng-500/20 px-3 py-2 rounded-lg transition cursor-pointer">
+              ← 1. Sekmedeki Net Toplamı Al
+            </button>
           </div>
 
-          <!-- Hızlı Yapıştırma Alanı -->
           <div class="no-print mb-3 bg-steel-50 p-2.5 rounded-lg border border-steel-200 flex flex-col sm:flex-row gap-2">
-            <input type="text" id="paste-samples-input" placeholder="Örn: 1,58 / 1,62 / 1,59 / 1,61 / 1,60 ..." class="flex-1 text-xs font-mono bg-white border border-steel-300 rounded-md px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-tealeng-500">
+            <input type="text" id="paste-samples-input" placeholder="Örn: 1,58 / 1,62 / 1,59 / 1,61 / 1,60 ..." class="flex-1 text-xs font-mono bg-white border border-steel-300 rounded-md px-2.5 py-1.5">
             <button type="button" onclick="parsePastedSamples()" class="bg-navy-900 hover:bg-navy-850 text-white text-xs font-semibold px-3 py-1.5 rounded-md transition whitespace-nowrap cursor-pointer">
               Kutulara Dağıt
             </button>
@@ -487,7 +487,6 @@
 
           <div class="grid grid-cols-2 sm:grid-cols-5 gap-2.5 mb-5" id="sample-inputs-grid"></div>
 
-          <!-- Doğrulama Sonuç Kutuları -->
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-steel-50 p-4 rounded-xl border border-steel-200">
             <div>
               <span class="text-xs text-steel-500 block">Fiili Ortalama</span>
@@ -495,7 +494,7 @@
             </div>
             <div>
               <span class="text-xs text-steel-500 block">Sapma (%)</span>
-              <span id="verify-dev" class="text-xl font-mono font-bold text-amber-600">+%3,55</span>
+              <span id="verify-dev" class="text-xl font-mono font-bold text-emerald-600">+%3,55</span>
             </div>
             <div>
               <span class="text-xs text-steel-500 block">Min / Maks / Std. Sapma</span>
@@ -506,11 +505,10 @@
           <div id="verify-decision-box" class="mt-4 p-3.5 rounded-lg border text-xs leading-relaxed"></div>
         </div>
 
-        <!-- Sağ: Ters Hesap (Hedef Tüketimden Çap Bulma - Örnek 5) -->
         <div class="lg:col-span-5 bg-white rounded-xl border border-steel-200 p-5 shadow-sm">
           <div class="border-b border-steel-100 pb-3 mb-4">
             <h2 class="text-base font-bold text-navy-900">Hedef Tüketimden Demet Çapı Bulma</h2>
-            <p class="text-xs text-steel-500">Bilinen tüketimden teorik kablo demeti çapını (D) hesaplar.</p>
+            <p class="text-xs text-steel-500">Bilinen tüketimden teorik kablo demeti çapını (D) hesaplar (Örnek 5).</p>
           </div>
 
           <div class="space-y-3 mb-5">
@@ -528,19 +526,17 @@
             </div>
           </div>
 
-          <div id="rev-result-card" class="bg-navy-900 text-white p-4 rounded-xl">
+          <div class="bg-navy-900 text-white p-4 rounded-xl">
             <div class="text-xs text-steel-300">Hesaplanan Demet Dış Çapı (D)</div>
             <div id="rev-D-out" class="text-3xl font-mono font-bold text-cyan-300 mt-1">10,13 mm</div>
             <p class="text-[11px] text-steel-400 mt-2">Not: Ölçülen adım varsayımı içindir; gerçek bindirme şartı ayrıca kontrol edilir.</p>
           </div>
         </div>
-
       </div>
     </section>
 
   </main>
 
-  <!-- Alt Bilgi -->
   <footer class="bg-white border-t border-steel-200 mt-10 py-4 px-4 sm:px-6 text-xs text-steel-500">
     <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
       <span>Teleset Kablo Gruplarında Bant Tüketimi Hesaplama Aracı (Rev. 02)</span>
@@ -548,49 +544,36 @@
     </div>
   </footer>
 
-  <!-- =====================================================================
-       JAVASCRIPT MOTORU: DOKÜMAN FORMÜLLERİ & ETKİLEŞİMLİ UI
-  ====================================================================== -->
   <script>
-    // Uygulama Durumu (State)
     let zones = [];
     let nextZoneId = 1;
+    let selectedUnfoldIndex = 0;
     let latestCalcSummary = null;
-
-    // Örnek 7 Varsayılan Numune Ölçümleri
     const defaultSamples = [1.58, 1.62, 1.59, 1.61, 1.60, 1.63, 1.59, 1.60, 1.62, 1.61];
 
-    // Yardımcı: Türkçe sayı formatı (virgüllü)
     function fmtTR(num, decimals = 3) {
       if (num === null || num === undefined || isNaN(num) || !isFinite(num)) return '—';
-      return num.toLocaleString('tr-TR', {
-        minimumFractionDigits: decimals,
-        maximumFractionDigits: decimals
-      });
+      return num.toLocaleString('tr-TR', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
     }
 
-    // Yardımcı: Bildirim göster
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, m => ({ '&': '&', '<': '<', '>': '>', '"': '"', "'": ''' }[m]));
+    }
+
     function showToast(message, type = 'info') {
       const container = document.getElementById('toast-container');
       const el = document.createElement('div');
-      const colors = type === 'success'
-        ? 'bg-emerald-700 text-white border-emerald-500'
-        : type === 'warn'
-        ? 'bg-amber-600 text-white border-amber-400'
+      const colors = type === 'success' ? 'bg-emerald-700 text-white border-emerald-500'
+        : type === 'warn' ? 'bg-amber-600 text-white border-amber-400'
         : 'bg-navy-900 text-white border-steel-600';
       el.className = `${colors} border px-4 py-2.5 rounded-lg shadow-lg text-xs font-medium transition-opacity duration-300`;
       el.textContent = message;
       container.appendChild(el);
-      setTimeout(() => {
-        el.style.opacity = '0';
-        setTimeout(() => el.remove(), 300);
-      }, 2800);
+      setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 300); }, 2800);
     }
 
-    // Sekme Geçişi
     function switchTab(tabName) {
-      const tabs = ['calc', 'prod', 'verify'];
-      tabs.forEach(t => {
+      ['calc', 'prod', 'verify'].forEach(t => {
         document.getElementById(`view-${t}`).classList.add('hidden');
         const btn = document.getElementById(`tab-btn-${t}`);
         btn.classList.remove('tab-active');
@@ -602,140 +585,104 @@
       activeBtn.classList.remove('text-steel-700');
 
       if (tabName === 'prod' && latestCalcSummary) {
-        document.getElementById('prod-unit-m').value = latestCalcSummary.grossTotalM.toFixed(4);
+        document.getElementById('prod-unit-m').value = latestCalcSummary.grossTotalM.toFixed(5);
         calcProduction();
       }
     }
 
-    // Temiz Başlangıç Şablonuna Sıfırla
+    function selectUnfoldZone(idx) {
+      selectedUnfoldIndex = Math.max(0, Math.min(idx, zones.length - 1));
+      recalculateAll();
+    }
+
     function resetToCleanSingleZone() {
       zones = [
-        { id: nextZoneId++, name: 'Bölge 1', D: 10, L: 500, B: 15, method: 'overlap', P: 17.07, R: 0, G: 10, spotCount: 1, spotTurns: 2, helperTurns: 5, helperSpan: 75 }
+        { id: nextZoneId++, name: 'Bölge 1', D: 10, L: 500, B: 15, method: 'overlap', P: 17.07, R: 0, G: 10, spotCount: 1, spotTurns: 2, zoneTurns: 0, helperTurns: 5, helperSpan: 75 }
       ];
+      selectedUnfoldIndex = 0;
       document.getElementById('global-n').value = 2;
       document.getElementById('global-n-mode').value = 'first';
       document.getElementById('scrap-pct').value = 3;
       document.getElementById('scrap-mode').value = 'net';
       renderZones();
       recalculateAll();
-      showToast('Temiz tek bölgeli başlangıç şablonuna sıfırlandı.', 'info');
     }
 
-    // Hazır Eğitim Örnekleri
     function loadSelectedPreset() {
       const val = document.getElementById('preset-select').value;
-      if (val === 'ex1') {
-        zones = [
-          { id: nextZoneId++, name: 'Bölge 1 (Ana Demet)', D: 10, L: 710, B: 15, method: 'overlap', P: 17.07, R: 0, G: 10, spotCount: 1, spotTurns: 2, helperTurns: 5, helperSpan: 85.35 }
-        ];
+      selectedUnfoldIndex = 0;
+      if (val === 'clean') {
+        resetToCleanSingleZone();
+        showToast('Yeni boş şablon yüklendi.', 'info');
+        return;
+      } else if (val === 'ex1') {
+        zones = [{ id: nextZoneId++, name: 'Bölge 1 (Ana Demet)', D: 10, L: 710, B: 15, method: 'overlap', P: 17.07, R: 0, G: 10, spotCount: 1, spotTurns: 2, zoneTurns: 0, helperTurns: 5, helperSpan: 85.35 }];
         document.getElementById('global-n').value = 2;
         document.getElementById('global-n-mode').value = 'first';
-        document.getElementById('scrap-pct').value = 3;
-        document.getElementById('scrap-mode').value = 'net';
-        showToast('Örnek 1 yüklendi: Sık bantlama, gerçek %0 bindirme (1,596 m/adet).', 'success');
       } else if (val === 'ex2') {
-        zones = [
-          { id: nextZoneId++, name: 'Bölge 1 (Ana Demet)', D: 10, L: 710, B: 15, method: 'overlap', P: 7.72, R: 50, G: 10, spotCount: 1, spotTurns: 2, helperTurns: 5, helperSpan: 38.6 }
-        ];
+        zones = [{ id: nextZoneId++, name: 'Bölge 1 (Ana Demet)', D: 10, L: 710, B: 15, method: 'overlap', P: 7.72, R: 50, G: 10, spotCount: 1, spotTurns: 2, zoneTurns: 0, helperTurns: 5, helperSpan: 38.6 }];
         document.getElementById('global-n').value = 2;
         document.getElementById('global-n-mode').value = 'first';
-        document.getElementById('scrap-pct').value = 3;
-        document.getElementById('scrap-mode').value = 'net';
-        showToast('Örnek 2 yüklendi: Sık bantlama, gerçek %50 bindirme (3,128 m/adet).', 'success');
       } else if (val === 'ex3') {
-        zones = [
-          { id: nextZoneId++, name: 'Bölge 1 (Seyrek)', D: 8, L: 600, B: 15, method: 'pitch', P: 30, R: 0, G: 15, spotCount: 1, spotTurns: 2, helperTurns: 5, helperSpan: 150 }
-        ];
+        zones = [{ id: nextZoneId++, name: 'Bölge 1 (Seyrek)', D: 8, L: 600, B: 15, method: 'pitch', P: 30, R: 0, G: 15, spotCount: 1, spotTurns: 2, zoneTurns: 0, helperTurns: 5, helperSpan: 150 }];
         document.getElementById('global-n').value = 2;
         document.getElementById('global-n-mode').value = 'first';
-        document.getElementById('scrap-pct').value = 3;
-        document.getElementById('scrap-mode').value = 'net';
-        showToast('Örnek 3 yüklendi: Seyrek bantlama, 5 turda 150 mm ilerleme (0,858 m/adet).', 'success');
       } else if (val === 'ex4') {
         zones = [
-          { id: nextZoneId++, name: 'Bölge A (Kalın Demet)', D: 10, L: 650, B: 15, method: 'overlap', P: 17.07, R: 0, G: 10, spotCount: 1, spotTurns: 2, helperTurns: 5, helperSpan: 85.35 },
-          { id: nextZoneId++, name: 'Bölge B (İnce Dal)', D: 4, L: 60, B: 15, method: 'pitch', P: 15, R: 0, G: 10, spotCount: 1, spotTurns: 2, helperTurns: 5, helperSpan: 75 }
+          { id: nextZoneId++, name: 'Bölge A (Kalın Demet)', D: 10, L: 650, B: 15, method: 'overlap', P: 17.07, R: 0, G: 10, spotCount: 1, spotTurns: 2, zoneTurns: 0, helperTurns: 5, helperSpan: 85.35 },
+          { id: nextZoneId++, name: 'Bölge B (İnce Dal)', D: 4, L: 60, B: 15, method: 'pitch', P: 15, R: 0, G: 10, spotCount: 1, spotTurns: 2, zoneTurns: 0, helperTurns: 5, helperSpan: 75 }
         ];
         document.getElementById('global-n').value = 2;
         document.getElementById('global-n-mode').value = 'avg_ends';
-        document.getElementById('scrap-pct').value = 3;
-        document.getElementById('scrap-mode').value = 'net';
-        showToast('Örnek 4 yüklendi: Karma çaplı demet (1,528 m/adet).', 'success');
       } else if (val === 'ex6_var') {
         zones = [
-          { id: nextZoneId++, name: 'Bölge 1 (65 cm)', D: 10, L: 650, B: 15, method: 'pitch', P: 15, R: 0, G: 10, spotCount: 1, spotTurns: 2, helperTurns: 5, helperSpan: 75 },
-          { id: nextZoneId++, name: 'Bölge 2 (6 cm)', D: 4, L: 60, B: 15, method: 'pitch', P: 15, R: 0, G: 10, spotCount: 1, spotTurns: 2, helperTurns: 5, helperSpan: 75 }
+          { id: nextZoneId++, name: 'Bölge 1 (65 cm)', D: 10, L: 650, B: 15, method: 'pitch', P: 15, R: 0, G: 10, spotCount: 1, spotTurns: 2, zoneTurns: 0, helperTurns: 5, helperSpan: 75 },
+          { id: nextZoneId++, name: 'Bölge 2 (6 cm)', D: 4, L: 60, B: 15, method: 'pitch', P: 15, R: 0, G: 10, spotCount: 1, spotTurns: 2, zoneTurns: 0, helperTurns: 5, helperSpan: 75 }
         ];
         document.getElementById('global-n').value = 2;
         document.getElementById('global-n-mode').value = 'avg_ends';
-        document.getElementById('scrap-pct').value = 3;
-        document.getElementById('scrap-mode').value = 'net';
-        showToast('Bölüm 6 örneği yüklendi (1,680 m/adet).', 'success');
       } else if (val === 'spot_nb') {
-        zones = [
-          { id: nextZoneId++, name: 'Nokta Bant Bölgesi', D: 10, L: 0, B: 15, method: 'spot', P: 15, R: 0, G: 10, spotCount: 1, spotTurns: 2, helperTurns: 5, helperSpan: 75 }
-        ];
+        zones = [{ id: nextZoneId++, name: 'Nokta Bant Bölgesi', D: 10, L: 0, B: 15, method: 'spot', P: 15, R: 0, G: 10, spotCount: 3, spotTurns: 2, zoneTurns: 0, helperTurns: 5, helperSpan: 75 }];
         document.getElementById('global-n').value = 0;
         document.getElementById('global-n-mode').value = 'first';
-        document.getElementById('scrap-pct').value = 3;
-        document.getElementById('scrap-mode').value = 'net';
-        showToast('Noktasal Bantlama (NB) örneği yüklendi: D=10 mm, 1 nokta × 2 tur.', 'success');
       }
+      document.getElementById('scrap-pct').value = 3;
+      document.getElementById('scrap-mode').value = 'net';
       renderZones();
       recalculateAll();
+      showToast('Seçilen şablon yüklendi.', 'success');
     }
 
-    // Yeni Bölge Ekle
     function addZone() {
       const idx = zones.length + 1;
       zones.push({
-        id: nextZoneId++,
-        name: `Bölge ${idx}`,
-        D: 8,
-        L: 250,
-        B: 15,
-        method: 'overlap',
-        P: 15,
-        R: 0,
-        G: 10,
-        spotCount: 1,
-        spotTurns: 2,
-        helperTurns: 5,
-        helperSpan: 75
+        id: nextZoneId++, name: `Bölge ${idx}`, D: 8, L: 250, B: 15,
+        method: 'overlap', P: 15, R: 0, G: 10, spotCount: 1, spotTurns: 2, zoneTurns: 0, helperTurns: 5, helperSpan: 75
       });
       renderZones();
       recalculateAll();
-      showToast(`Bölge ${idx} eklendi.`, 'info');
     }
 
-    // Bölge Sil
     function removeZone(id) {
-      if (zones.length <= 1) {
-        showToast('En az bir bölge bulunmalıdır.', 'warn');
-        return;
-      }
+      if (zones.length <= 1) return;
       zones = zones.filter(z => z.id !== id);
+      if (selectedUnfoldIndex >= zones.length) selectedUnfoldIndex = zones.length - 1;
       renderZones();
       recalculateAll();
-      showToast('Bölge silindi.', 'info');
     }
 
-    // Alan Güncelleme
     function updateZoneField(id, field, value) {
       const z = zones.find(item => item.id === id);
       if (!z) return;
       if (field === 'name' || field === 'method') {
         z[field] = value;
-        if (field === 'method') {
-          renderZones();
-        }
+        if (field === 'method') renderZones();
       } else {
         z[field] = parseFloat(value) || 0;
       }
       recalculateAll();
     }
 
-    // Hızlı Çap / Bant / Boy Seçici
     function applyQuickVal(id, field, val) {
       const z = zones.find(item => item.id === id);
       if (!z) return;
@@ -744,18 +691,9 @@
       recalculateAll();
     }
 
-    // Genel Tur ve Fire Hızlı Tuşları
-    function setGlobalTurns(val) {
-      document.getElementById('global-n').value = val;
-      recalculateAll();
-    }
+    function setGlobalTurns(val) { document.getElementById('global-n').value = val; recalculateAll(); }
+    function setScrapPct(val) { document.getElementById('scrap-pct').value = val; recalculateAll(); }
 
-    function setScrapPct(val) {
-      document.getElementById('scrap-pct').value = val;
-      recalculateAll();
-    }
-
-    // Standart Proses Kodu Hızlı Seçimi (SB-00, SB-25, SB-50, YB-10, YB-15, YB-20)
     function applyQuickProcess(id, method, val) {
       const z = zones.find(item => item.id === id);
       if (!z) return;
@@ -766,7 +704,6 @@
       recalculateAll();
     }
 
-    // N Tur Yardımcısından P Hesaplama
     function applyPitchHelper(id) {
       const z = zones.find(item => item.id === id);
       if (!z) return;
@@ -778,21 +715,17 @@
       }
     }
 
-    // Tekil Bölge Geometrik Hesabı (Rev. 02 Formülleri)
     function computeZoneMetrics(zone) {
       const D = Math.max(0, zone.D);
       const L = Math.max(0, zone.L);
       const B = Math.max(0.1, zone.B);
-      const C = Math.PI * D; // Çevre (mm)
+      const C = Math.PI * D;
+      const zoneExtraTurns = Math.max(0, zone.zoneTurns || 0);
+      const zoneExtraMm = zoneExtraTurns * C;
 
-      let P = 0;
-      let S = 0;
-      let N = 0;
-      let turnLength = 0;
-      let spiralMm = 0;
-      let nominalMm = null;
-      let warning = null;
-      let codeBadge = 'SB-00';
+      let P = 0, S = 0, N = 0, turnLength = 0, spiralMm = 0, nominalMm = null, warning = null, codeBadge = 'SB-00';
+      let visualMode = 'tight';
+      let pitchNote = null;
 
       if (zone.method === 'spot') {
         const spotCount = Math.max(0, zone.spotCount || 0);
@@ -801,195 +734,196 @@
         turnLength = C;
         spiralMm = N * C;
         codeBadge = 'NB';
-        P = null;
-        S = null;
+        visualMode = 'spot';
+        P = null; S = null;
       } else if (zone.method === 'pitch') {
         P = Math.max(0.01, zone.P);
         N = L / P;
         turnLength = Math.sqrt(C * C + P * P);
         spiralMm = N * turnLength;
         codeBadge = 'Ölçülen P';
+        // Gerçek dik sarım aralığı S = P * C / √(C² + P²)
+        S = turnLength > 0 ? (P * C) / turnLength : 0;
+        if (S > B + 0.05) {
+          visualMode = 'sparse';
+          pitchNote = `Hesaplanan dik açıklık G ≈ ${fmtTR(S - B, 2)} mm (Seyrek sarım görünümü).`;
+        } else {
+          visualMode = 'tight';
+          const effR = Math.max(0, (1 - S / B) * 100);
+          pitchNote = `Hesaplanan etkin dik bindirme R ≈ %${fmtTR(effR, 1)} (Kapalı sarım).`;
+        }
       } else if (zone.method === 'overlap') {
         const R = Math.min(99, Math.max(0, zone.R)) / 100;
         S = B * (1 - R);
         codeBadge = `SB-${String(Math.round(zone.R)).padStart(2, '0')}`;
-
-        // Nominal yaklaşım karşılaştırması: P_nom = B(1 - R)
         const P_nom = Math.max(0.01, B * (1 - R));
         nominalMm = (L / P_nom) * Math.sqrt(C * C + P_nom * P_nom);
 
         if (S >= C) {
-          warning = `Bu bant (${fmtTR(B, 0)} mm), ince kablo çevresinden (${fmtTR(C, 1)} mm) büyük olduğu için %${fmtTR(zone.R, 0)} bindirme geometrik olarak mümkün değildir. Bindirme oranını (%) artırın veya "Gerçek Sarım Adımı (P)" seçin.`;
-          P = null;
-          N = 0;
-          turnLength = 0;
-          spiralMm = 0;
+          warning = `Bant genişliği (${fmtTR(B, 0)} mm), kablo çevresinden (${fmtTR(C, 1)} mm) büyük olduğu için %${fmtTR(zone.R, 0)} bindirme geometrik olarak çözülemez. Bindirmeyi artırın veya "Ölçülen Adım (P)" seçin.`;
+          P = null; N = 0; turnLength = 0; spiralMm = 0; visualMode = 'invalid';
         } else {
-          // Bölüm 4: P = S * πD / √[(πD)² - S²] ve T = π * D * L / S
           P = (S * C) / Math.sqrt(C * C - S * S);
           N = L / P;
           turnLength = Math.sqrt(C * C + P * P);
           spiralMm = (C * L) / S;
+          visualMode = 'tight';
         }
       } else if (zone.method === 'gap') {
         const G = Math.max(0, zone.G);
         S = B + G;
         codeBadge = `YB-${Math.round(G)}`;
-
         if (S >= C) {
-          warning = `Bant + boşluk toplamı (${fmtTR(S, 1)} mm), kablo çevresini (${fmtTR(C, 1)} mm) aşıyor. Boşluğu azaltın veya "Gerçek Sarım Adımı (P)" seçin.`;
-          P = null;
-          N = 0;
-          turnLength = 0;
-          spiralMm = 0;
+          warning = `Bant + boşluk (${fmtTR(S, 1)} mm), kablo çevresini (${fmtTR(C, 1)} mm) aşıyor. Boşluğu azaltın veya "Ölçülen Adım (P)" seçin.`;
+          P = null; N = 0; turnLength = 0; spiralMm = 0; visualMode = 'invalid';
         } else {
-          // Bölüm 5: S = B + G | T = π * D * L / S
           P = (S * C) / Math.sqrt(C * C - S * S);
           N = L / P;
           turnLength = Math.sqrt(C * C + P * P);
           spiralMm = (C * L) / S;
+          visualMode = 'sparse';
         }
       }
 
       return {
-        D, L, B, C, P, S, N, turnLength, spiralMm,
+        D, L, B, C, P, S, N, turnLength, spiralMm, zoneExtraTurns, zoneExtraMm,
         spiralM: spiralMm / 1000,
+        zoneTotalM: (spiralMm + zoneExtraMm) / 1000,
         nominalM: nominalMm !== null ? nominalMm / 1000 : null,
-        warning,
-        codeBadge
+        warning, codeBadge, visualMode, pitchNote
       };
     }
 
-    // Bölge Kartlarını HTML Olarak Çizme
     function renderZones() {
       const container = document.getElementById('zones-container');
       container.innerHTML = '';
-
       const methodOptions = [
-        { key: 'overlap', label: 'Sık Bantlama (Bindirme %)' },
-        { key: 'gap', label: 'Seyrek Bantlama (Boşluk G)' },
-        { key: 'pitch', label: 'Gerçek Sarım Adımı (P)' },
+        { key: 'overlap', label: 'Sık (Bindirme %)' },
+        { key: 'gap', label: 'Seyrek (Boşluk G)' },
+        { key: 'pitch', label: 'Ölçülen Adım (P)' },
         { key: 'spot', label: 'Nokta Bant (NB)' }
       ];
 
       zones.forEach((zone, index) => {
         const isSpot = zone.method === 'spot';
         const card = document.createElement('div');
-        card.className = "bg-white rounded-xl border border-steel-200 p-4 sm:p-5 shadow-sm transition hover:border-steel-300";
+        card.id = `zone-card-${zone.id}`;
+        card.className = "bg-white rounded-xl border border-steel-200 p-4 sm:p-5 shadow-sm transition";
         card.innerHTML = `
           <div class="flex flex-wrap items-center justify-between gap-2 border-b border-steel-100 pb-3 mb-3.5">
             <div class="flex items-center gap-2.5">
               <span class="w-6 h-6 rounded-md bg-navy-900 text-white text-xs font-mono font-bold flex items-center justify-center">${index + 1}</span>
               <input type="text" value="${escapeHtml(zone.name)}" oninput="updateZoneField(${zone.id}, 'name', this.value)"
-                class="font-bold text-sm text-navy-900 bg-steel-50 border border-steel-200 rounded-md px-2.5 py-1 focus:outline-none focus:ring-2 focus:ring-tealeng-500 w-40 sm:w-48" />
+                class="font-bold text-sm text-navy-900 bg-steel-50 border border-steel-200 rounded-md px-2.5 py-1 w-40 sm:w-48" />
               <span id="zone-badge-${zone.id}" class="text-[11px] font-mono font-semibold px-2 py-0.5 rounded bg-tealeng-500/10 text-tealeng-700 border border-tealeng-500/20">SB-00</span>
             </div>
             <div class="flex items-center gap-3">
               <div class="text-right">
-                <span class="text-[11px] text-steel-500 block">${isSpot ? 'Nokta Bant Tüketimi' : 'Bölge Spiral Tüketim'}</span>
+                <span class="text-[11px] text-steel-500 block">Bölge Toplamı</span>
                 <span id="zone-card-result-${zone.id}" class="font-mono font-bold text-sm text-tealeng-700">0,000 m</span>
               </div>
               ${zones.length > 1 ? `
-                <button type="button" onclick="removeZone(${zone.id})" title="Bu Bölgeyi Sil"
-                  class="no-print text-rose-600 hover:text-white hover:bg-rose-600 border border-rose-200 bg-rose-50 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1 cursor-pointer">
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                  </svg>
+                <button type="button" onclick="removeZone(${zone.id})" class="text-rose-600 hover:text-white hover:bg-rose-600 border border-rose-200 bg-rose-50 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer">
                   Sil
                 </button>
               ` : ''}
             </div>
           </div>
 
-          <!-- 1. Adım: Bantlama Tipi Seçici -->
-          <div class="no-print mb-3.5">
-            <label class="block text-[11px] font-semibold text-steel-600 mb-1.5">Bantlama Tipi / Hesaplama Yöntemi</label>
+          <div class="mb-3.5">
+            <label class="block text-[11px] font-semibold text-steel-600 mb-1.5">Sarım Tipi</label>
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
               ${methodOptions.map(opt => `
                 <button type="button" onclick="updateZoneField(${zone.id}, 'method', '${opt.key}')"
-                  class="px-2.5 py-1.5 text-xs font-semibold rounded-lg border transition cursor-pointer ${zone.method === opt.key ? 'bg-navy-900 text-white border-navy-900 shadow-xs' : 'bg-steel-50 text-steel-700 border-steel-200 hover:bg-steel-100'}">
+                  class="px-2.5 py-1.5 text-xs font-semibold rounded-lg border transition cursor-pointer ${zone.method === opt.key ? 'bg-navy-900 text-white border-navy-900' : 'bg-steel-50 text-steel-700 border-steel-200 hover:bg-steel-100'}">
                   ${opt.label}
                 </button>
               `).join('')}
             </div>
           </div>
 
-          <!-- 2. Adım: Fiziksel Ölçüler + Hızlı Çap/Bant Seçim Tuşları -->
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
             <div>
-              <label class="block text-[11px] font-semibold text-steel-700 mb-1">Demet Çapı D (mm)</label>
+              <label class="block text-[11px] font-semibold text-steel-700 mb-1" title="Bantlama öncesi sıkıştırmadan ölçün">Demet Çapı D (mm)</label>
               <input type="number" min="0.1" step="0.1" value="${zone.D}" oninput="updateZoneField(${zone.id}, 'D', this.value)"
-                class="w-full font-mono text-sm bg-steel-50 border border-steel-300 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-tealeng-500">
-              <div class="no-print flex flex-wrap gap-1 mt-1">
-                ${[4, 8, 10, 15].map(dVal => `
-                  <button type="button" onclick="applyQuickVal(${zone.id}, 'D', ${dVal})" class="text-[10px] font-mono bg-steel-100 hover:bg-steel-200 text-steel-700 px-1.5 py-0.5 rounded border border-steel-200 cursor-pointer">${dVal}</button>
-                `).join('')}
+                class="w-full font-mono text-sm bg-steel-50 border border-steel-300 rounded-lg px-2.5 py-1.5">
+              <div class="flex flex-wrap gap-1 mt-1">
+                ${[4, 8, 10, 15].map(dVal => `<button type="button" onclick="applyQuickVal(${zone.id}, 'D', ${dVal})" class="text-[10px] font-mono bg-steel-100 hover:bg-steel-200 text-steel-700 px-1.5 py-0.5 rounded border border-steel-200 cursor-pointer">${dVal}</button>`).join('')}
               </div>
             </div>
 
-            <div class="${isSpot ? 'opacity-40 pointer-events-none' : ''}">
-              <label class="block text-[11px] font-semibold text-steel-700 mb-1">Bantlama Boyu L (mm)</label>
-              <input type="number" min="0" step="1" value="${isSpot ? 0 : zone.L}" oninput="updateZoneField(${zone.id}, 'L', this.value)"
-                class="w-full font-mono text-sm bg-steel-50 border border-steel-300 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-tealeng-500">
-              <div class="no-print flex flex-wrap gap-1 mt-1">
-                ${[100, 500, 710].map(lVal => `
-                  <button type="button" onclick="applyQuickVal(${zone.id}, 'L', ${lVal})" class="text-[10px] font-mono bg-steel-100 hover:bg-steel-200 text-steel-700 px-1.5 py-0.5 rounded border border-steel-200 cursor-pointer">${lVal}</button>
-                `).join('')}
+            ${isSpot ? `
+              <div class="bg-steel-50 rounded-lg px-2.5 py-1.5 border border-steel-200 flex flex-col justify-center">
+                <span class="text-[10px] font-semibold text-steel-500">1 Tur Çevresi (π·D)</span>
+                <span id="zone-spot-circ-${zone.id}" class="font-mono text-sm font-bold text-navy-900 mt-0.5">31,42 mm</span>
+                <span class="text-[10px] text-steel-500 mt-0.5">L boyu NB'yi etkilemez</span>
+              </div>
+            ` : `
+              <div>
+                <label class="block text-[11px] font-semibold text-steel-700 mb-1">Sarım Boyu L (mm)</label>
+                <input type="number" min="0" step="1" value="${zone.L}" oninput="updateZoneField(${zone.id}, 'L', this.value)"
+                  class="w-full font-mono text-sm bg-steel-50 border border-steel-300 rounded-lg px-2.5 py-1.5">
+                <div class="flex flex-wrap gap-1 mt-1">
+                  ${[100, 500, 710].map(lVal => `<button type="button" onclick="applyQuickVal(${zone.id}, 'L', ${lVal})" class="text-[10px] font-mono bg-steel-100 hover:bg-steel-200 text-steel-700 px-1.5 py-0.5 rounded border border-steel-200 cursor-pointer">${lVal}</button>`).join('')}
+                </div>
+              </div>
+            `}
+
+            <div>
+              <label class="block text-[11px] font-semibold text-steel-700 mb-1">Bant Eni B (mm)</label>
+              <input type="number" min="1" step="0.5" value="${zone.B}" oninput="updateZoneField(${zone.id}, 'B', this.value)"
+                class="w-full font-mono text-sm bg-steel-50 border border-steel-300 rounded-lg px-2.5 py-1.5">
+              <div class="flex flex-wrap gap-1 mt-1">
+                ${[9, 15, 19, 25].map(bVal => `<button type="button" onclick="applyQuickVal(${zone.id}, 'B', ${bVal})" class="text-[10px] font-mono bg-steel-100 hover:bg-steel-200 text-steel-700 px-1.5 py-0.5 rounded border border-steel-200 cursor-pointer">${bVal}</button>`).join('')}
               </div>
             </div>
 
             <div>
-              <label class="block text-[11px] font-semibold text-steel-700 mb-1">Bant Genişliği B (mm)</label>
-              <input type="number" min="1" step="0.5" value="${zone.B}" oninput="updateZoneField(${zone.id}, 'B', this.value)"
-                class="w-full font-mono text-sm bg-steel-50 border border-steel-300 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-tealeng-500">
-              <div class="no-print flex flex-wrap gap-1 mt-1">
-                ${[9, 15, 19, 25].map(bVal => `
-                  <button type="button" onclick="applyQuickVal(${zone.id}, 'B', ${bVal})" class="text-[10px] font-mono bg-steel-100 hover:bg-steel-200 text-steel-700 px-1.5 py-0.5 rounded border border-steel-200 cursor-pointer">${bVal}</button>
-                `).join('')}
+              <label class="block text-[11px] font-semibold text-steel-700 mb-1">Bölge Ek Turu (n)</label>
+              <input type="number" min="0" step="0.5" value="${zone.zoneTurns || 0}" oninput="updateZoneField(${zone.id}, 'zoneTurns', this.value)"
+                class="w-full font-mono text-sm bg-steel-50 border border-steel-300 rounded-lg px-2.5 py-1.5" title="Çap geçişi sabitleme turu">
+              <div class="flex gap-1 mt-1">
+                ${[0, 1, 2].map(tVal => `<button type="button" onclick="applyQuickVal(${zone.id}, 'zoneTurns', ${tVal})" class="text-[10px] font-mono bg-steel-100 hover:bg-steel-200 text-steel-700 px-1.5 py-0.5 rounded border border-steel-200 cursor-pointer">+${tVal}</button>`).join('')}
               </div>
-            </div>
-
-            <div class="bg-steel-50 rounded-lg px-2.5 py-1.5 border border-steel-200 flex flex-col justify-center">
-              <span class="text-[10px] text-steel-500">Demet Çevresi (π·D)</span>
-              <span id="zone-circ-${zone.id}" class="font-mono text-xs font-bold text-navy-900 mt-0.5">31,42 mm</span>
             </div>
           </div>
 
-          <!-- 3. Adım: Seçilen Sarım Tipine Özel Parametreler -->
           <div class="bg-steel-50/80 rounded-lg p-3 border border-steel-200">
             ${zone.method === 'pitch' ? `
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
-                <div>
-                  <label class="block text-xs font-semibold text-navy-900 mb-1">Gerçek Sarım Adımı P (mm)</label>
-                  <input type="number" min="0.1" step="0.01" value="${zone.P}" oninput="updateZoneField(${zone.id}, 'P', this.value)"
-                    class="w-full font-mono text-sm bg-white border border-steel-300 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-tealeng-500">
-                </div>
-                <div class="no-print bg-white p-2 rounded-lg border border-steel-200">
-                  <span class="block text-[10px] font-semibold text-steel-600 mb-1">N Tur İlerleme Ölçüm Yardımcısı:</span>
-                  <div class="flex items-center gap-1.5">
-                    <input type="number" min="1" step="1" value="${zone.helperTurns}" oninput="updateZoneField(${zone.id}, 'helperTurns', this.value)" class="w-14 font-mono text-xs border border-steel-300 rounded px-1.5 py-1" title="Tur sayısı">
-                    <span class="text-[11px] text-steel-500">tur =</span>
-                    <input type="number" min="1" step="0.5" value="${zone.helperSpan}" oninput="updateZoneField(${zone.id}, 'helperSpan', this.value)" class="w-16 font-mono text-xs border border-steel-300 rounded px-1.5 py-1" title="Toplam mm">
-                    <span class="text-[11px] text-steel-500">mm</span>
-                    <button type="button" onclick="applyPitchHelper(${zone.id})" class="ml-auto bg-tealeng-500 hover:bg-tealeng-600 text-white text-[11px] font-semibold px-2 py-1 rounded cursor-pointer">P Hesapla</button>
+              <div class="space-y-2">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
+                  <div>
+                    <label class="block text-xs font-semibold text-navy-900 mb-1">Gerçek Sarım Adımı P (mm)</label>
+                    <input type="number" min="0.1" step="0.01" value="${zone.P}" oninput="updateZoneField(${zone.id}, 'P', this.value)"
+                      class="w-full font-mono text-sm bg-white border border-steel-300 rounded-lg px-2.5 py-1.5">
+                  </div>
+                  <div class="bg-white p-2 rounded-lg border border-steel-200">
+                    <span class="block text-[10px] font-semibold text-steel-600 mb-1">En Az 5 Tur Ölçüm Yardımcısı:</span>
+                    <div class="flex items-center gap-1.5">
+                      <input type="number" min="1" step="1" value="${zone.helperTurns}" oninput="updateZoneField(${zone.id}, 'helperTurns', this.value)" class="w-12 font-mono text-xs border border-steel-300 rounded px-1.5 py-1">
+                      <span class="text-[11px] text-steel-500">tur =</span>
+                      <input type="number" min="1" step="0.5" value="${zone.helperSpan}" oninput="updateZoneField(${zone.id}, 'helperSpan', this.value)" class="w-16 font-mono text-xs border border-steel-300 rounded px-1.5 py-1">
+                      <span class="text-[11px] text-steel-500">mm</span>
+                      <button type="button" onclick="applyPitchHelper(${zone.id})" class="ml-auto bg-tealeng-500 hover:bg-tealeng-600 text-white text-[11px] font-semibold px-2 py-1 rounded cursor-pointer">P Bul</button>
+                    </div>
                   </div>
                 </div>
+                <div id="zone-pitch-note-${zone.id}" class="text-[11px] text-steel-600"></div>
               </div>
             ` : zone.method === 'overlap' ? `
-              <div class="space-y-2.5">
+              <div class="space-y-2">
                 <div class="flex flex-wrap items-center justify-between gap-2">
                   <label class="text-xs font-semibold text-navy-900">Gerçek Dik Bindirme Oranı R (%)</label>
-                  <div class="no-print flex items-center gap-1">
-                    <span class="text-[10px] text-steel-500 mr-1">Hızlı Seçim:</span>
-                    <button type="button" onclick="applyQuickProcess(${zone.id}, 'overlap', 0)" class="px-2 py-0.5 text-[11px] font-mono rounded border ${zone.R === 0 ? 'bg-tealeng-600 text-white border-tealeng-600' : 'bg-white text-navy-900 border-steel-300 hover:bg-steel-100'} cursor-pointer">SB-00 (%0)</button>
-                    <button type="button" onclick="applyQuickProcess(${zone.id}, 'overlap', 25)" class="px-2 py-0.5 text-[11px] font-mono rounded border ${zone.R === 25 ? 'bg-tealeng-600 text-white border-tealeng-600' : 'bg-white text-navy-900 border-steel-300 hover:bg-steel-100'} cursor-pointer">SB-25 (%25)</button>
-                    <button type="button" onclick="applyQuickProcess(${zone.id}, 'overlap', 50)" class="px-2 py-0.5 text-[11px] font-mono rounded border ${zone.R === 50 ? 'bg-tealeng-600 text-white border-tealeng-600' : 'bg-white text-navy-900 border-steel-300 hover:bg-steel-100'} cursor-pointer">SB-50 (%50)</button>
+                  <div class="flex items-center gap-1" id="zone-quick-r-${zone.id}">
+                    ${[0, 25, 50].map(rv => `
+                      <button type="button" data-val="${rv}" onclick="applyQuickProcess(${zone.id}, 'overlap', ${rv})" class="px-2 py-0.5 text-[11px] font-mono rounded border cursor-pointer">SB-${String(rv).padStart(2, '0')} (%${rv})</button>
+                    `).join('')}
                   </div>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
                   <div class="flex items-center gap-2">
                     <input type="number" min="0" max="90" step="1" value="${zone.R}" oninput="updateZoneField(${zone.id}, 'R', this.value)"
-                      class="w-24 font-mono text-sm bg-white border border-steel-300 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-tealeng-500">
+                      class="w-24 font-mono text-sm bg-white border border-steel-300 rounded-lg px-2.5 py-1.5">
                     <span class="text-xs font-mono text-steel-600">% bindirme</span>
                   </div>
                   <div class="text-xs text-steel-700 bg-white px-2.5 py-1.5 rounded-lg border border-steel-200 flex justify-between">
@@ -997,22 +931,22 @@
                     <span id="zone-calc-p-${zone.id}" class="font-mono font-bold text-tealeng-700">17,07 mm</span>
                   </div>
                 </div>
+                <div id="zone-nom-note-${zone.id}" class="text-[11px] text-steel-500"></div>
               </div>
             ` : zone.method === 'gap' ? `
-              <div class="space-y-2.5">
+              <div class="space-y-2">
                 <div class="flex flex-wrap items-center justify-between gap-2">
                   <label class="text-xs font-semibold text-navy-900">Bant Kenarları Arası Dik Boşluk G (mm)</label>
-                  <div class="no-print flex items-center gap-1">
-                    <span class="text-[10px] text-steel-500 mr-1">Hızlı Seçim:</span>
-                    <button type="button" onclick="applyQuickProcess(${zone.id}, 'gap', 10)" class="px-2 py-0.5 text-[11px] font-mono rounded border ${zone.G === 10 ? 'bg-tealeng-600 text-white border-tealeng-600' : 'bg-white text-navy-900 border-steel-300 hover:bg-steel-100'} cursor-pointer">YB-10</button>
-                    <button type="button" onclick="applyQuickProcess(${zone.id}, 'gap', 15)" class="px-2 py-0.5 text-[11px] font-mono rounded border ${zone.G === 15 ? 'bg-tealeng-600 text-white border-tealeng-600' : 'bg-white text-navy-900 border-steel-300 hover:bg-steel-100'} cursor-pointer">YB-15</button>
-                    <button type="button" onclick="applyQuickProcess(${zone.id}, 'gap', 20)" class="px-2 py-0.5 text-[11px] font-mono rounded border ${zone.G === 20 ? 'bg-tealeng-600 text-white border-tealeng-600' : 'bg-white text-navy-900 border-steel-300 hover:bg-steel-100'} cursor-pointer">YB-20</button>
+                  <div class="flex items-center gap-1" id="zone-quick-g-${zone.id}">
+                    ${[10, 15, 20].map(gv => `
+                      <button type="button" data-val="${gv}" onclick="applyQuickProcess(${zone.id}, 'gap', ${gv})" class="px-2 py-0.5 text-[11px] font-mono rounded border cursor-pointer">YB-${gv}</button>
+                    `).join('')}
                   </div>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
                   <div class="flex items-center gap-2">
                     <input type="number" min="0" step="0.5" value="${zone.G}" oninput="updateZoneField(${zone.id}, 'G', this.value)"
-                      class="w-24 font-mono text-sm bg-white border border-steel-300 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-tealeng-500">
+                      class="w-24 font-mono text-sm bg-white border border-steel-300 rounded-lg px-2.5 py-1.5">
                     <span class="text-xs font-mono text-steel-600">mm boşluk</span>
                   </div>
                   <div class="text-xs text-steel-700 bg-white px-2.5 py-1.5 rounded-lg border border-steel-200 flex justify-between">
@@ -1022,23 +956,24 @@
                 </div>
               </div>
             ` : `
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
-                <div>
-                  <label class="block text-xs font-semibold text-navy-900 mb-1">Nokta Adedi (Kaç Yere Atılacak?)</label>
-                  <input type="number" min="1" step="1" value="${zone.spotCount || 1}" oninput="updateZoneField(${zone.id}, 'spotCount', this.value)"
-                    class="w-full font-mono text-sm bg-white border border-steel-300 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-tealeng-500">
+              <div class="space-y-2">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
+                  <div>
+                    <label class="block text-xs font-semibold text-navy-900 mb-1">Nokta Adedi (Kaç Yere Atılacak?)</label>
+                    <input type="number" min="1" step="1" value="${zone.spotCount || 1}" oninput="updateZoneField(${zone.id}, 'spotCount', this.value)"
+                      class="w-full font-mono text-sm bg-white border border-steel-300 rounded-lg px-2.5 py-1.5">
+                  </div>
+                  <div>
+                    <label class="block text-xs font-semibold text-navy-900 mb-1">Nokta Başına Tur (Çevresel)</label>
+                    <input type="number" min="1" step="0.5" value="${zone.spotTurns || 2}" oninput="updateZoneField(${zone.id}, 'spotTurns', this.value)"
+                      class="w-full font-mono text-sm bg-white border border-steel-300 rounded-lg px-2.5 py-1.5">
+                  </div>
                 </div>
-                <div>
-                  <label class="block text-xs font-semibold text-navy-900 mb-1">Nokta Başına Tur Sayısı</label>
-                  <input type="number" min="1" step="0.5" value="${zone.spotTurns || 2}" oninput="updateZoneField(${zone.id}, 'spotTurns', this.value)"
-                    class="w-full font-mono text-sm bg-white border border-steel-300 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-tealeng-500">
-                </div>
+                <p class="text-[11px] text-steel-500">Noktasal bantlama üst üste çevresel sarım kabul edilir: Tüketim = Nokta × Tur × π·D.</p>
               </div>
             `}
 
-            <!-- Uyarı Mesajı Alanı -->
             <div id="zone-warn-${zone.id}" class="hidden mt-2.5 p-2.5 rounded-lg bg-amber-50 border border-amber-300 text-amber-900 text-xs flex items-start gap-2">
-              <svg class="w-4 h-4 text-amber-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
               <span id="zone-warn-text-${zone.id}"></span>
             </div>
           </div>
@@ -1047,50 +982,73 @@
       });
     }
 
-    function escapeHtml(str) {
-      return String(str).replace(/[&<>"']/g, m => ({
-        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-      }[m]));
-    }
-
-    // Tüm Bölgeleri ve Genel Toplamları Yeniden Hesapla
     function recalculateAll() {
       let totalSpiralMm = 0;
+      let totalZoneExtraMm = 0;
       let totalTurns = 0;
       const computedZones = [];
 
-      zones.forEach(zone => {
+      if (selectedUnfoldIndex >= zones.length) selectedUnfoldIndex = Math.max(0, zones.length - 1);
+
+      zones.forEach((zone, idx) => {
         const res = computeZoneMetrics(zone);
         computedZones.push({ zone, res });
-
         totalSpiralMm += res.spiralMm;
-        totalTurns += res.N;
+        totalZoneExtraMm += res.zoneExtraMm;
+        totalTurns += res.N + res.zoneExtraTurns;
 
-        const circEl = document.getElementById(`zone-circ-${zone.id}`);
-        if (circEl) circEl.textContent = `${fmtTR(res.C, 2)} mm`;
+        const cardEl = document.getElementById(`zone-card-${zone.id}`);
+        if (cardEl) {
+          cardEl.classList.toggle('ring-2', idx === selectedUnfoldIndex && zones.length > 1);
+          cardEl.classList.toggle('ring-tealeng-500/40', idx === selectedUnfoldIndex && zones.length > 1);
+        }
 
         const cardResEl = document.getElementById(`zone-card-result-${zone.id}`);
-        if (cardResEl) cardResEl.textContent = `${fmtTR(res.spiralM, 3)} m`;
+        if (cardResEl) cardResEl.textContent = `${fmtTR(res.zoneTotalM, 3)} m`;
 
         const badgeEl = document.getElementById(`zone-badge-${zone.id}`);
         if (badgeEl) badgeEl.textContent = res.codeBadge;
 
+        const spotCircEl = document.getElementById(`zone-spot-circ-${zone.id}`);
+        if (spotCircEl) spotCircEl.textContent = `${fmtTR(res.C, 2)} mm`;
+
         const calcPEl = document.getElementById(`zone-calc-p-${zone.id}`);
         if (calcPEl) calcPEl.textContent = res.P !== null ? `${fmtTR(res.P, 2)} mm` : 'Geçersiz';
+
+        const nomEl = document.getElementById(`zone-nom-note-${zone.id}`);
+        if (nomEl) {
+          nomEl.textContent = (res.nominalM !== null && res.P !== null)
+            ? `Bilgi: Eğim açısı ihmal edilen nominal yaklaşım (${fmtTR(res.nominalM, 3)} m) yerine gerçek geometrik değer (${fmtTR(res.spiralM, 3)} m) kullanıldı.`
+            : '';
+        }
+
+        const pitchNoteEl = document.getElementById(`zone-pitch-note-${zone.id}`);
+        if (pitchNoteEl && res.pitchNote) pitchNoteEl.textContent = res.pitchNote;
+
+        // Hızlı bindirme / boşluk buton aktiflik senkronizasyonu
+        const qr = document.getElementById(`zone-quick-r-${zone.id}`);
+        if (qr) {
+          qr.querySelectorAll('button').forEach(b => {
+            const active = parseFloat(b.dataset.val) === zone.R;
+            b.className = `px-2 py-0.5 text-[11px] font-mono rounded border cursor-pointer ${active ? 'bg-tealeng-600 text-white border-tealeng-600' : 'bg-white text-navy-900 border-steel-300 hover:bg-steel-100'}`;
+          });
+        }
+        const qg = document.getElementById(`zone-quick-g-${zone.id}`);
+        if (qg) {
+          qg.querySelectorAll('button').forEach(b => {
+            const active = parseFloat(b.dataset.val) === zone.G;
+            b.className = `px-2 py-0.5 text-[11px] font-mono rounded border cursor-pointer ${active ? 'bg-tealeng-600 text-white border-tealeng-600' : 'bg-white text-navy-900 border-steel-300 hover:bg-steel-100'}`;
+          });
+        }
 
         const warnBox = document.getElementById(`zone-warn-${zone.id}`);
         const warnText = document.getElementById(`zone-warn-text-${zone.id}`);
         if (warnBox && warnText) {
-          if (res.warning) {
-            warnBox.classList.remove('hidden');
-            warnText.textContent = res.warning;
-          } else {
-            warnBox.classList.add('hidden');
-          }
+          if (res.warning) { warnBox.classList.remove('hidden'); warnText.textContent = res.warning; }
+          else { warnBox.classList.add('hidden'); }
         }
       });
 
-      // Genel Ek Sabitleme Turları Hesabı
       const globalN = Math.max(0, parseFloat(document.getElementById('global-n').value) || 0);
       const nMode = document.getElementById('global-n-mode').value;
       const customWrap = document.getElementById('global-custom-d-wrap');
@@ -1102,30 +1060,21 @@
       } else {
         customWrap.classList.add('hidden');
         if (nMode === 'avg_ends' && computedZones.length >= 2) {
-          const dFirst = computedZones[0].res.D;
-          const dLast = computedZones[computedZones.length - 1].res.D;
-          effectiveFixingD = (dFirst + dLast) / 2;
+          effectiveFixingD = (computedZones[0].res.D + computedZones[computedZones.length - 1].res.D) / 2;
         }
       }
 
-      const fixingMm = globalN * Math.PI * effectiveFixingD;
-      const netTotalMm = totalSpiralMm + fixingMm;
+      const globalFixingMm = globalN * Math.PI * effectiveFixingD;
+      const allFixingMm = globalFixingMm + totalZoneExtraMm;
+      const netTotalMm = totalSpiralMm + allFixingMm;
       const netTotalM = netTotalMm / 1000;
 
-      // Fire Hesabı
       const scrapPct = Math.max(0, parseFloat(document.getElementById('scrap-pct').value) || 0);
       const f = scrapPct / 100;
       const scrapMode = document.getElementById('scrap-mode').value;
-
-      let grossTotalM = netTotalM;
-      if (scrapMode === 'net') {
-        grossTotalM = netTotalM * (1 + f);
-      } else {
-        grossTotalM = f < 1 ? netTotalM / (1 - f) : netTotalM;
-      }
+      const grossTotalM = scrapMode === 'net' ? netTotalM * (1 + f) : (f < 1 ? netTotalM / (1 - f) : netTotalM);
       const scrapAddedM = grossTotalM - netTotalM;
 
-      // Sağ Panel Özeti Güncelle
       document.getElementById('summary-zone-count').textContent = `${zones.length} Bölge`;
       document.getElementById('res-net-total').innerHTML = `${fmtTR(netTotalM, 3)} <span class="text-sm font-normal text-steel-500">m</span>`;
       document.getElementById('res-net-mm').textContent = `${fmtTR(netTotalMm, 1)} mm`;
@@ -1133,38 +1082,32 @@
       document.getElementById('res-scrap-added').textContent = `+${fmtTR(scrapAddedM, 3)} m (%${fmtTR(scrapPct, 1)} fire)`;
 
       document.getElementById('res-spiral-only').textContent = `${fmtTR(totalSpiralMm / 1000, 3)} m`;
-      document.getElementById('res-fixing-only').textContent = `${fmtTR(fixingMm / 1000, 3)} m (${fmtTR(globalN, 1)} tur)`;
+      document.getElementById('res-fixing-only').textContent = `${fmtTR(allFixingMm / 1000, 3)} m`;
       document.getElementById('res-total-turns').textContent = `${fmtTR(totalTurns + globalN, 2)} tur`;
 
-      // Döküm Tablosunu Güncelle
-      renderBreakdownTable(computedZones, globalN, effectiveFixingD, fixingMm / 1000, netTotalM, scrapPct, scrapMode, grossTotalM);
-
-      // SVG Şemaları ve Excel Formülünü Güncelle
-      drawHarnessSVG(computedZones);
-      if (computedZones.length > 0) {
-        drawUnfoldSVG(computedZones[0]);
-        updateExcelFormulaBox(computedZones[0], globalN, scrapPct);
+      // Açınım Bölge Seçici Güncelle
+      const unfoldSel = document.getElementById('unfold-zone-select');
+      if (unfoldSel) {
+        unfoldSel.innerHTML = computedZones.map(({ zone }, i) =>
+          `<option value="${i}" ${i === selectedUnfoldIndex ? 'selected' : ''}>${i + 1}. ${escapeHtml(zone.name)}</option>`
+        ).join('');
       }
 
-      latestCalcSummary = {
-        computedZones,
-        globalN,
-        fixingM: fixingMm / 1000,
-        netTotalM,
-        grossTotalM,
-        scrapPct
-      };
+      renderBreakdownTable(computedZones, globalN, effectiveFixingD, globalFixingMm / 1000, netTotalM, scrapPct, grossTotalM);
+      drawDetailedHarnessSVG(computedZones, globalN);
+      if (computedZones[selectedUnfoldIndex]) drawUnfoldSVG(computedZones[selectedUnfoldIndex]);
+      updateExcelFormulaBox(computedZones, globalN, effectiveFixingD, scrapPct, scrapMode);
+
+      latestCalcSummary = { computedZones, globalN, effectiveFixingD, fixingM: allFixingMm / 1000, netTotalM, grossTotalM, scrapPct, scrapMode };
     }
 
-    // Döküm Tablosu Render
-    function renderBreakdownTable(computedZones, globalN, fixingD, fixingM, netTotalM, scrapPct, scrapMode, grossTotalM) {
+    function renderBreakdownTable(computedZones, globalN, fixingD, globalFixingM, netTotalM, scrapPct, grossTotalM) {
       const tbody = document.getElementById('breakdown-tbody');
       tbody.innerHTML = '';
 
       computedZones.forEach(({ zone, res }) => {
         const isSpot = zone.method === 'spot';
         const tr = document.createElement('tr');
-        tr.className = "hover:bg-steel-50";
         tr.innerHTML = `
           <td class="py-2.5 px-4 font-sans font-semibold text-navy-900">${escapeHtml(zone.name)}</td>
           <td class="py-2.5 px-4 font-sans text-xs text-steel-700">${res.codeBadge}</td>
@@ -1175,107 +1118,280 @@
           <td class="py-2.5 px-4 text-right font-semibold text-navy-900">${fmtTR(res.spiralM, 3)}</td>
         `;
         tbody.appendChild(tr);
+
+        if (res.zoneExtraTurns > 0) {
+          const trZFix = document.createElement('tr');
+          trZFix.className = "bg-steel-50/50 text-xs";
+          trZFix.innerHTML = `
+            <td class="py-2 px-4 font-sans text-steel-600 pl-8">↳ ${escapeHtml(zone.name)} Ek Sabitleme</td>
+            <td class="py-2 px-4 font-sans text-steel-500">Çevresel</td>
+            <td class="py-2 px-4 text-right text-steel-600">${fmtTR(res.D, 1)}</td>
+            <td class="py-2 px-4 text-right text-steel-400">—</td>
+            <td class="py-2 px-4 text-right text-steel-400">—</td>
+            <td class="py-2 px-4 text-right">${fmtTR(res.zoneExtraTurns, 1)}</td>
+            <td class="py-2 px-4 text-right font-semibold">${fmtTR(res.zoneExtraMm / 1000, 3)}</td>
+          `;
+          tbody.appendChild(trZFix);
+        }
       });
 
       if (globalN > 0) {
         const trFix = document.createElement('tr');
         trFix.className = "bg-steel-50/60";
         trFix.innerHTML = `
-          <td class="py-2.5 px-4 font-sans text-steel-700">Genel Ek Sabitleme Turları</td>
+          <td class="py-2.5 px-4 font-sans text-steel-700">Genel Uç Sabitleme Turları</td>
           <td class="py-2.5 px-4 font-sans text-xs text-steel-500">Çevresel (n × π × D)</td>
           <td class="py-2.5 px-4 text-right text-steel-600">${fmtTR(fixingD, 1)}</td>
           <td class="py-2.5 px-4 text-right text-steel-400">—</td>
           <td class="py-2.5 px-4 text-right text-steel-400">—</td>
           <td class="py-2.5 px-4 text-right">${fmtTR(globalN, 1)}</td>
-          <td class="py-2.5 px-4 text-right font-semibold text-navy-900">${fmtTR(fixingM, 3)}</td>
+          <td class="py-2.5 px-4 text-right font-semibold text-navy-900">${fmtTR(globalFixingM, 3)}</td>
         `;
         tbody.appendChild(trFix);
       }
 
-      const trNet = document.createElement('tr');
-      trNet.className = "bg-steel-100 font-bold border-t-2 border-steel-300";
-      trNet.innerHTML = `
-        <td colspan="6" class="py-2.5 px-4 font-sans text-right text-navy-900">Net Toplam Tüketim:</td>
-        <td class="py-2.5 px-4 text-right text-navy-900">${fmtTR(netTotalM, 3)} m</td>
+      tbody.innerHTML += `
+        <tr class="bg-steel-100 font-bold border-t-2 border-steel-300">
+          <td colspan="6" class="py-2.5 px-4 font-sans text-right text-navy-900">Net Toplam Tüketim:</td>
+          <td class="py-2.5 px-4 text-right text-navy-900">${fmtTR(netTotalM, 3)} m</td>
+        </tr>
+        <tr class="bg-tealeng-500/10 font-bold text-tealeng-700">
+          <td colspan="6" class="py-3 px-4 font-sans text-right">%${fmtTR(scrapPct, 1)} Fire Dahil Onaylı BOM Tüketimi:</td>
+          <td class="py-3 px-4 text-right text-base">${fmtTR(grossTotalM, 3)} m/adet</td>
+        </tr>
       `;
-      tbody.appendChild(trNet);
-
-      const trGross = document.createElement('tr');
-      trGross.className = "bg-tealeng-500/10 font-bold text-tealeng-700";
-      trGross.innerHTML = `
-        <td colspan="6" class="py-3 px-4 font-sans text-right">%${fmtTR(scrapPct, 1)} Fire Dahil Onaylı BOM Tüketimi:</td>
-        <td class="py-3 px-4 text-right text-base">${fmtTR(grossTotalM, 3)} m/adet</td>
-      `;
-      tbody.appendChild(trGross);
     }
 
-    // SVG 1: Çok Bölgeli Kablo Demeti Şeması (Şekil 3 Stili)
-    function drawHarnessSVG(computedZones) {
+    // =========================================================================
+    // TAŞMASIZ, GERÇEK HELİS AÇILI & TIKLANABİLİR CANLI KABLO DEMETİ ŞEMASI
+    // =========================================================================
+    function drawDetailedHarnessSVG(computedZones, globalN) {
       const svg = document.getElementById('harness-svg');
       if (!svg || computedZones.length === 0) return;
 
-      const totalL = computedZones.reduce((acc, item) => acc + Math.max(20, item.res.L || 60), 0);
+      const startX = 76;
+      const usableW = 768;
+      const centerY = 122;
+      const maxBarH = 62;
+      const count = computedZones.length;
       const maxD = Math.max(...computedZones.map(item => Math.max(2, item.res.D)));
-      const startX = 24;
-      const usableW = 472;
-      const centerY = 55;
-      const maxBarH = 44;
+
+      // Taşmasız genişlik dağıtımı: sum(widths) === usableW her zaman garantili
+      const minW = Math.min(112, Math.floor(usableW / count));
+      const rawWeights = computedZones.map(({ zone, res }) =>
+        zone.method === 'spot' ? Math.max(90, (zone.spotCount || 1) * 55) : Math.max(35, res.L || 100)
+      );
+      const sumWeights = rawWeights.reduce((a, b) => a + b, 0) || 1;
+      const extraSpace = Math.max(0, usableW - minW * count);
+      const widths = rawWeights.map(wt => minW + (wt / sumWeights) * extraSpace);
+
+      let defs = `
+        <defs>
+          <linearGradient id="tape-grad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#334155"/>
+            <stop offset="45%" stop-color="#1e293b"/>
+            <stop offset="100%" stop-color="#0f172a"/>
+          </linearGradient>
+          <linearGradient id="tape-overlap-grad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#1e293b"/>
+            <stop offset="50%" stop-color="#0f172a"/>
+            <stop offset="100%" stop-color="#020617"/>
+          </linearGradient>
+          <pattern id="cloth-weave" width="6" height="6" patternUnits="userSpaceOnUse">
+            <path d="M 0 3 L 6 3 M 3 0 L 3 6" stroke="#ffffff" stroke-opacity="0.06" stroke-width="0.7"/>
+          </pattern>
+          <pattern id="warn-hatch" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+            <rect width="10" height="10" fill="#fef3c7"/>
+            <line x1="0" y1="0" x2="0" y2="10" stroke="#d97706" stroke-width="4" opacity="0.55"/>
+          </pattern>
+        </defs>
+      `;
+
+      const wireColors = ['#ef4444', '#eab308', '#3b82f6', '#10b981', '#f97316'];
+      const firstH = Math.max(18, (Math.max(2, computedZones[0].res.D) / maxD) * maxBarH);
+      const lastH = Math.max(18, (Math.max(2, computedZones[count - 1].res.D) / maxD) * maxBarH);
 
       let currentX = startX;
-      let shapes = '';
+      let zonesLayer = '';
+      let annotationsLayer = '';
 
       computedZones.forEach(({ zone, res }, idx) => {
-        const effectiveL = Math.max(20, res.L || 60);
-        const w = Math.max(36, (effectiveL / totalL) * usableW);
-        const h = Math.max(12, (Math.max(2, res.D) / maxD) * maxBarH);
+        const w = widths[idx];
+        const h = Math.max(18, (Math.max(2, res.D) / maxD) * maxBarH);
         const y = centerY - h / 2;
+        const clipId = `zone-clip-${idx}`;
+        const isSelected = idx === selectedUnfoldIndex;
 
-        const fill = idx % 2 === 0 ? '#334155' : '#005f73';
-        shapes += `<rect x="${currentX}" y="${y}" width="${w}" height="${h}" rx="3" fill="${fill}" />`;
+        defs += `<clipPath id="${clipId}"><rect x="${currentX}" y="${y}" width="${w}" height="${h}" rx="3" /></clipPath>`;
 
-        if (zone.method === 'spot') {
-          const spots = Math.min(6, Math.max(1, zone.spotCount || 1));
+        zonesLayer += `<g class="svg-zone-hit" onclick="selectUnfoldZone(${idx})">`;
+        zonesLayer += `<g clip-path="url(#${clipId})">`;
+
+        // 1. İç Katman: Çok Renkli Kablo Telleri
+        zonesLayer += `<rect x="${currentX}" y="${y}" width="${w}" height="${h}" fill="#e2e8f0" />`;
+        wireColors.forEach((col, wi) => {
+          const wy = y + ((wi + 0.7) / wireColors.length) * h;
+          zonesLayer += `<line x1="${currentX}" y1="${wy}" x2="${currentX + w}" y2="${wy}" stroke="${col}" stroke-width="${Math.max(2.2, h / 6.2)}" opacity="0.92" />`;
+        });
+
+        // 2. Dış Katman: Sarım Tipine ve Gerçek Helis Açısına Göre Bez Bant
+        if (res.visualMode === 'invalid') {
+          zonesLayer += `<rect x="${currentX}" y="${y}" width="${w}" height="${h}" fill="url(#warn-hatch)" />`;
+          zonesLayer += `<text x="${currentX + w / 2}" y="${centerY + 4}" text-anchor="middle" font-family="Inter, sans-serif" font-size="10" font-weight="700" fill="#92400e">Çözümsüz (S≥πD)</text>`;
+        } else if (res.visualMode === 'spot') {
+          const spots = Math.min(8, Math.max(1, zone.spotCount || 1));
+          const spotW = Math.max(11, Math.min(22, (res.B / 15) * 15));
           for (let s = 1; s <= spots; s++) {
-            const sx = currentX + (w / (spots + 1)) * s;
-            shapes += `<rect x="${sx - 3}" y="${y - 2}" width="6" height="${h + 4}" rx="1" fill="#38bdf8" />`;
+            const sx = currentX + (w / (spots + 1)) * s - spotW / 2;
+            zonesLayer += `<rect x="${sx}" y="${y}" width="${spotW}" height="${h}" fill="url(#tape-grad)" stroke="#64748b" stroke-width="0.9" />`;
+            zonesLayer += `<rect x="${sx}" y="${y}" width="${spotW}" height="${h}" fill="url(#cloth-weave)" />`;
+            zonesLayer += `<text x="${sx + spotW / 2}" y="${centerY + 3.5}" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="8.5" font-weight="700" fill="#e2e8f0">${zone.spotTurns || 2}t</text>`;
           }
         } else {
-          const pitchVis = zone.method === 'gap' ? 18 : 10;
-          for (let sx = currentX + 6; sx < currentX + w - 4; sx += pitchVis) {
-            shapes += `<line x1="${sx}" y1="${y + h}" x2="${sx + 4}" y2="${y}" stroke="#94a3b8" stroke-width="1.3" opacity="0.85" />`;
+          // Gerçek helis eğimi: tan(theta) = P / C
+          const helixRatio = (res.P && res.C > 0) ? Math.min(1.4, Math.max(0.18, res.P / res.C)) : 0.45;
+          const slant = Math.min(20, Math.max(5, h * helixRatio * 0.55));
+
+          if (res.visualMode === 'sparse') {
+            const gapRatio = res.S && res.B > 0 ? Math.min(3.5, Math.max(1.2, res.S / res.B)) : 1.7;
+            const bandW = Math.max(9, Math.min(18, 17 / Math.sqrt(gapRatio)));
+            const stepPx = bandW * gapRatio;
+            for (let sx = currentX - slant; sx < currentX + w + slant; sx += stepPx) {
+              const pts = `${sx},${y + h} ${sx + slant},${y} ${sx + slant + bandW},${y} ${sx + bandW},${y + h}`;
+              zonesLayer += `<polygon points="${pts}" fill="url(#tape-grad)" stroke="#020617" stroke-width="0.8" />`;
+              zonesLayer += `<polygon points="${pts}" fill="url(#cloth-weave)" />`;
+            }
+          } else {
+            zonesLayer += `<rect x="${currentX}" y="${y}" width="${w}" height="${h}" fill="url(#tape-grad)" />`;
+            zonesLayer += `<rect x="${currentX}" y="${y}" width="${w}" height="${h}" fill="url(#cloth-weave)" />`;
+            const effR = zone.method === 'overlap' ? zone.R : (res.S && res.B ? Math.max(0, (1 - res.S / res.B) * 100) : 0);
+            const stepPx = Math.max(6.5, 16 * (1 - Math.min(72, effR) / 100));
+            for (let sx = currentX - slant; sx < currentX + w + slant; sx += stepPx) {
+              if (effR > 3) {
+                const ovW = Math.max(2.2, stepPx * (effR / 100));
+                const ovPts = `${sx},${y + h} ${sx + slant},${y} ${sx + slant + ovW},${y} ${sx + ovW},${y + h}`;
+                zonesLayer += `<polygon points="${ovPts}" fill="url(#tape-overlap-grad)" opacity="0.72" />`;
+              }
+              zonesLayer += `<line x1="${sx}" y1="${y + h}" x2="${sx + slant}" y2="${y}" stroke="#94a3b8" stroke-width="1" opacity="0.75" />`;
+            }
           }
         }
 
-        if (w > 48) {
-          shapes += `<text x="${currentX + w / 2}" y="${y - 7}" text-anchor="middle" font-family="Inter, sans-serif" font-size="10" font-weight="600" fill="#0d192b">D=${fmtTR(res.D, 0)} mm</text>`;
-          const subLabel = zone.method === 'spot' ? `NB (${zone.spotCount || 1}×${zone.spotTurns || 2}t)` : `L=${fmtTR(res.L, 0)}`;
-          shapes += `<text x="${currentX + w / 2}" y="${y + h + 15}" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9.5" fill="#475569">${subLabel}</text>`;
+        // Bölge Sonu Ek Sabitleme Turu (Turuncu Halka)
+        if (res.zoneExtraTurns > 0) {
+          zonesLayer += `<rect x="${currentX + w - 8}" y="${y}" width="8" height="${h}" fill="#f59e0b" stroke="#92400e" stroke-width="0.7" />`;
         }
+        zonesLayer += `</g>`;
 
-        currentX += w + 2;
+        // Dış Çerçeve + Seçili Bölge Vurgusu
+        zonesLayer += `<rect x="${currentX}" y="${y}" width="${w}" height="${h}" rx="3" fill="none" stroke="${isSelected ? '#007791' : '#0f172a'}" stroke-width="${isSelected ? '2.4' : '1.3'}" />`;
+        zonesLayer += `</g>`;
+
+        // Üst Teknik Etiketler (Dar bölgelerde çakışmayı önleyen 2 kademeli yerleşim)
+        const midX = currentX + w / 2;
+        const boxW = Math.min(132, Math.max(96, w - 6));
+        const staggerY = (idx % 2 === 1 && count > 2 && w < 145) ? 34 : 0;
+        const boxY = Math.max(6, y - 48 - staggerY);
+        const shortName = zone.name.length > 14 ? zone.name.slice(0, 13) + '…' : zone.name;
+        const subText = zone.method === 'spot'
+          ? `Ø${fmtTR(res.D, 1)} | ${zone.spotCount}×${zone.spotTurns}t`
+          : `Ø${fmtTR(res.D, 1)} | P=${res.P ? fmtTR(res.P, 1) : '—'}`;
+
+        annotationsLayer += `
+          <g class="svg-zone-hit" onclick="selectUnfoldZone(${idx})">
+            <line x1="${midX}" y1="${boxY + 34}" x2="${midX}" y2="${y}" stroke="${isSelected ? '#007791' : '#94a3b8'}" stroke-width="${isSelected ? '1.4' : '1'}" />
+            <rect x="${midX - boxW / 2}" y="${boxY}" width="${boxW}" height="34" rx="5" fill="${isSelected ? '#ecfeff' : '#ffffff'}" stroke="${isSelected ? '#007791' : '#cbd5e1'}" stroke-width="${isSelected ? '1.4' : '1'}" />
+            <text x="${midX}" y="${boxY + 13}" text-anchor="middle" font-family="Inter, sans-serif" font-size="9.5" font-weight="700" fill="#0d192b">${escapeHtml(shortName)} (${res.codeBadge})</text>
+            <text x="${midX}" y="${boxY + 26}" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" font-weight="600" fill="#005f73">${subText}</text>
+          </g>
+        `;
+
+        // Alt Teknik Resim Ölçülendirme Çizgisi
+        const dimY = centerY + maxBarH / 2 + 24;
+        const dimLabel = zone.method === 'spot' ? `NB (${zone.spotCount || 1} nokta)` : `L=${fmtTR(res.L, 0)} mm`;
+        annotationsLayer += `
+          <line x1="${currentX}" y1="${y + h + 3}" x2="${currentX}" y2="${dimY + 6}" stroke="#64748b" stroke-width="0.9" stroke-dasharray="2 2" />
+          <line x1="${currentX + w}" y1="${y + h + 3}" x2="${currentX + w}" y2="${dimY + 6}" stroke="#64748b" stroke-width="0.9" stroke-dasharray="2 2" />
+          <line x1="${currentX + 3}" y1="${dimY}" x2="${currentX + w - 3}" y2="${dimY}" stroke="#0d192b" stroke-width="1.2" />
+          <polygon points="${currentX},${dimY} ${currentX + 6},${dimY - 3} ${currentX + 6},${dimY + 3}" fill="#0d192b" />
+          <polygon points="${currentX + w},${dimY} ${currentX + w - 6},${dimY - 3} ${currentX + w - 6},${dimY + 3}" fill="#0d192b" />
+          <rect x="${midX - 36}" y="${dimY - 8}" width="72" height="15" rx="3" fill="#f8fafc" />
+          <text x="${midX}" y="${dimY + 3}" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9.5" font-weight="700" fill="#0d192b">${dimLabel}</text>
+        `;
+
+        currentX += w;
       });
 
+      // Sol & Sağ Açık Kablo Telleri (Tam başlangıç ve bitiş X koordinatına bağlı)
+      let endWires = '';
+      wireColors.forEach((col, i) => {
+        const offL = ((i - 2) / 5) * (firstH * 0.72);
+        const fanL = (i - 2) * 4.5;
+        endWires += `<path d="M 16 ${centerY + offL + fanL} Q 46 ${centerY + offL} ${startX + 3} ${centerY + offL}" stroke="${col}" stroke-width="3.2" fill="none" stroke-linecap="round" />`;
+
+        const offR = ((i - 2) / 5) * (lastH * 0.72);
+        const fanR = (i - 2) * 4.5;
+        endWires += `<path d="M ${currentX - 3} ${centerY + offR} Q ${currentX + 28} ${centerY + offR} ${currentX + 58} ${centerY + offR + fanR}" stroke="${col}" stroke-width="3.2" fill="none" stroke-linecap="round" />`;
+      });
+
+      // Genel Başlangıç & Bitiş Sabitleme Halkaları
+      let globalRings = '';
+      if (globalN > 0) {
+        const yFirst = centerY - firstH / 2;
+        const yLast = centerY - lastH / 2;
+        globalRings += `
+          <rect x="${startX}" y="${yFirst - 1.5}" width="8" height="${firstH + 3}" rx="1.5" fill="#f59e0b" stroke="#92400e" stroke-width="0.9" />
+          ${globalN >= 2 ? `<rect x="${currentX - 8}" y="${yLast - 1.5}" width="8" height="${lastH + 3}" rx="1.5" fill="#f59e0b" stroke="#92400e" stroke-width="0.9" />` : ''}
+          <text x="${startX + usableW / 2}" y="${centerY + maxBarH / 2 + 48}" text-anchor="middle" font-family="Inter, sans-serif" font-size="9.5" font-weight="600" fill="#b45309">
+            Genel Uç Sabitleme: Toplam ${fmtTR(globalN, 1)} tur (turuncu halkalar)
+          </text>
+        `;
+      }
+
       svg.innerHTML = `
-        <line x1="12" y1="${centerY}" x2="508" y2="${centerY}" stroke="#cbd5e1" stroke-dasharray="4 3" stroke-width="1"/>
-        ${shapes}
+        ${defs}
+        <line x1="10" y1="${centerY}" x2="910" y2="${centerY}" stroke="#cbd5e1" stroke-dasharray="6 4" stroke-width="1"/>
+        ${endWires}
+        ${zonesLayer}
+        ${globalRings}
+        ${annotationsLayer}
       `;
     }
 
-    // SVG 2: Silindir Yüzeyinin Açınımı (Şekil 2 Pisagor Diyagramı)
-    function drawUnfoldSVG(firstItem) {
+    // 1 Tur Açınım Diyagramı (Spiral / Nokta Bant / Uyarı Durumlarını Doğru Çizer)
+    function drawUnfoldSVG(item) {
       const svg = document.getElementById('unfold-svg');
-      if (!svg || !firstItem) return;
+      if (!svg || !item) return;
+      const { zone, res } = item;
 
-      const { res } = firstItem;
+      if (res.visualMode === 'invalid') {
+        svg.innerHTML = `
+          <rect x="20" y="25" width="480" height="105" rx="8" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5" />
+          <text x="260" y="68" text-anchor="middle" font-family="Inter, sans-serif" font-size="13" font-weight="700" fill="#92400e">Geometrik Çözüm Yok (S ≥ π·D)</text>
+          <text x="260" y="92" text-anchor="middle" font-family="Inter, sans-serif" font-size="11" fill="#78350f">Demet çevresi (${fmtTR(res.C, 2)} mm), sarım aralığından küçük. Bindirmeyi artırın veya P girin.</text>
+        `;
+        return;
+      }
+
+      if (zone.method === 'spot') {
+        svg.innerHTML = `
+          <rect x="140" y="20" width="44" height="95" fill="#e0f2fe" stroke="#64748b" stroke-width="1.5" />
+          <line x1="162" y1="20" x2="162" y2="115" stroke="#007791" stroke-width="6" />
+          <line x1="126" y1="20" x2="126" y2="115" stroke="#0d192b" stroke-width="1.2" />
+          <text x="118" y="72" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="10.5" font-weight="600" fill="#0d192b">C = ${fmtTR(res.C, 2)} mm</text>
+          <text x="162" y="135" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600" fill="#0d192b">P = 0 (Çevresel)</text>
+          <rect x="210" y="34" width="285" height="66" rx="6" fill="#ffffff" stroke="#cbd5e1" />
+          <text x="224" y="54" font-family="Inter, sans-serif" font-size="11" font-weight="700" fill="#007791">Nokta Bant (NB) – Dik Sarım</text>
+          <text x="224" y="73" font-family="JetBrains Mono, monospace" font-size="11.5" font-weight="700" fill="#0d192b">1 tur = ${fmtTR(res.C, 2)} mm</text>
+          <text x="224" y="90" font-family="Inter, sans-serif" font-size="10" fill="#475569">${zone.spotCount || 1} nokta × ${zone.spotTurns || 2} tur = ${fmtTR(res.spiralM, 3)} m</text>
+        `;
+        return;
+      }
+
       const C = res.C || 31.42;
-      const P = res.P || 17.07;
+      const P = res.P || 15;
       const hyp = res.turnLength || Math.sqrt(C * C + P * P);
-
-      const boxH = 95;
-      const ratio = Math.min(2.2, Math.max(0.45, P / C));
-      const boxW = Math.round(boxH * ratio);
-      const x0 = 135;
-      const y0 = 20;
+      const boxH = 95, boxW = Math.round(boxH * Math.min(2.1, Math.max(0.45, P / C))), x0 = 130, y0 = 20;
 
       svg.innerHTML = `
         <rect x="${x0}" y="${y0}" width="${boxW}" height="${boxH}" fill="#e0f2fe" stroke="#64748b" stroke-width="1.5" />
@@ -1284,39 +1400,87 @@
         <text x="${x0 - 18}" y="${y0 + boxH / 2 + 4}" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600" fill="#0d192b">C = ${fmtTR(C, 2)} mm</text>
         <line x1="${x0}" y1="${y0 + boxH + 12}" x2="${x0 + boxW}" y2="${y0 + boxH + 12}" stroke="#0d192b" stroke-width="1.2" />
         <text x="${x0 + boxW / 2}" y="${y0 + boxH + 26}" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600" fill="#0d192b">P = ${fmtTR(P, 2)} mm</text>
-        <rect x="${x0 + boxW + 14}" y="${y0 + 22}" width="215" height="46" rx="6" fill="#ffffff" stroke="#cbd5e1" />
-        <text x="${x0 + boxW + 24}" y="${y0 + 40}" font-family="Inter, sans-serif" font-size="10.5" font-weight="600" fill="#007791">Bir turdaki bant √(C² + P²):</text>
-        <text x="${x0 + boxW + 24}" y="${y0 + 57}" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700" fill="#0d192b">${fmtTR(hyp, 2)} mm / tur</text>
+        <rect x="${x0 + boxW + 14}" y="${y0 + 18}" width="215" height="58" rx="6" fill="#ffffff" stroke="#cbd5e1" />
+        <text x="${x0 + boxW + 24}" y="${y0 + 36}" font-family="Inter, sans-serif" font-size="10.5" font-weight="600" fill="#007791">1 turdaki bant √(C² + P²):</text>
+        <text x="${x0 + boxW + 24}" y="${y0 + 53}" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700" fill="#0d192b">${fmtTR(hyp, 2)} mm / tur</text>
+        <text x="${x0 + boxW + 24}" y="${y0 + 68}" font-family="Inter, sans-serif" font-size="9.5" fill="#64748b">Toplam: ${fmtTR(res.N, 2)} tur → ${fmtTR(res.spiralM, 3)} m</text>
       `;
     }
 
-    // Türkçe Excel Formülünü Güncelleme
-    function updateExcelFormulaBox(firstItem, globalN, scrapPct) {
+    function updateExcelFormulaBox(computedZones, globalN, fixingD, scrapPct, scrapMode) {
       const el = document.getElementById('excel-formula-display');
-      if (!el || !firstItem) return;
-      const { zone, res } = firstItem;
-      const fVal = (scrapPct / 100).toFixed(2).replace('.', ',');
+      if (!el || !computedZones.length) return;
+      const fVal = (scrapPct / 100).toFixed(3).replace(/0+$/, '').replace(/\.$/, '').replace('.', ',') || '0';
+      const scrapExpr = scrapMode === 'gross' ? `/(1-${fVal})` : `*(1+${fVal})`;
 
-      if (zone.method === 'spot') {
-        const spotN = (zone.spotCount || 1) * (zone.spotTurns || 2) + globalN;
-        el.textContent = `=(${String(spotN).replace('.', ',')}*Pİ()*${String(res.D).replace('.', ',')})*(1+${fVal})/1000`;
+      if (computedZones.length === 1) {
+        const { zone, res } = computedZones[0];
+        const totalN = (zone.zoneTurns || 0) + globalN;
+        const dStr = String(res.D).replace('.', ',');
+        if (zone.method === 'spot') {
+          const spotN = String((zone.spotCount || 1) * (zone.spotTurns || 2) + totalN).replace('.', ',');
+          el.textContent = `=(${spotN}*Pİ()*${dStr})${scrapExpr}/1000`;
+        } else {
+          const pVal = res.P !== null ? res.P.toFixed(2).replace('.', ',') : '15';
+          const nStr = String(totalN).replace('.', ',');
+          el.textContent = `=(${res.L}/${pVal}*KAREKÖK((Pİ()*${dStr})^2+${pVal}^2)+${nStr}*Pİ()*${dStr})${scrapExpr}/1000`;
+        }
       } else {
-        const pVal = res.P !== null ? res.P.toFixed(2).replace('.', ',') : '15';
-        el.textContent = `=(${res.L}/${pVal}*KAREKÖK((Pİ()*${res.D})^2+${pVal}^2)+${globalN}*Pİ()*${res.D})*(1+${fVal})/1000`;
+        const lines = computedZones.map(({ zone, res }, i) => {
+          const row = i + 2;
+          if (zone.method === 'spot') {
+            const spotN = (zone.spotCount || 1) * (zone.spotTurns || 2) + (zone.zoneTurns || 0);
+            return `F${row} (${zone.name} - NB): =(D${row}*Pİ()*A${row})/1000   [D=${res.D}; n=${spotN}]`;
+          }
+          const pVal = res.P !== null ? res.P.toFixed(2).replace('.', ',') : '15';
+          return `F${row} (${zone.name}): =(B${row}/C${row}*KAREKÖK((Pİ()*A${row})^2+C${row}^2)+D${row}*Pİ()*A${row})/1000`;
+        });
+        const fixRow = computedZones.length + 2;
+        lines.push(`F${fixRow} (Genel Sabitleme): =(D${fixRow}*Pİ()*A${fixRow})/1000`);
+        lines.push(`BOM Toplam: =TOPLA(F2:F${fixRow})${scrapExpr}`);
+        el.textContent = lines.join('\n');
       }
     }
 
-    // PDF Çıktısı / Yazdırma Penceresi Açma
+    function copyExcelFormula() {
+      copyTextFallback(document.getElementById('excel-formula-display').textContent.trim(), 'Excel formülü panoya kopyalandı.');
+    }
+
+    function copyExcelTSV() {
+      if (!latestCalcSummary) return;
+      const { computedZones, globalN, effectiveFixingD, scrapPct, scrapMode } = latestCalcSummary;
+      const fDec = (scrapPct / 100).toFixed(3).replace('.', ',');
+      const scrapExpr = scrapMode === 'gross' ? `/(1-E2)` : `*(1+E2)`;
+      const rows = ['Çap D (mm)\tBoy L (mm)\tAdım P (mm)\tEk Tur n\tFire f\tTüketim (m)\tAçıklama'];
+
+      computedZones.forEach(({ zone, res }, i) => {
+        const r = i + 2;
+        const dStr = String(res.D).replace('.', ',');
+        const fireCell = i === 0 ? fDec : '';
+        if (zone.method === 'spot') {
+          const nSpot = String((zone.spotCount || 1) * (zone.spotTurns || 2) + (zone.zoneTurns || 0)).replace('.', ',');
+          rows.push(`${dStr}\t0\t0\t${nSpot}\t${fireCell}\t=(D${r}*Pİ()*A${r})/1000\t${zone.name} (NB)`);
+        } else {
+          const pStr = res.P !== null ? res.P.toFixed(4).replace('.', ',') : '15';
+          const nStr = String(zone.zoneTurns || 0).replace('.', ',');
+          rows.push(`${dStr}\t${res.L}\t${pStr}\t${nStr}\t${fireCell}\t=(B${r}/C${r}*KAREKÖK((Pİ()*A${r})^2+C${r}^2)+D${r}*Pİ()*A${r})/1000\t${zone.name} (${res.codeBadge})`);
+        }
+      });
+
+      const fixRow = computedZones.length + 2;
+      rows.push(`${String(effectiveFixingD).replace('.', ',')}\t0\t0\t${String(globalN).replace('.', ',')}\t\t=(D${fixRow}*Pİ()*A${fixRow})/1000\tGenel Uç Sabitleme`);
+      rows.push(`\t\t\t\tNet Toplam:\t=TOPLA(F2:F${fixRow})\tFiresiz (m)`);
+      rows.push(`\t\t\t\tBOM (Fire Dahil):\t=F${fixRow + 1}${scrapExpr}\tm/adet`);
+
+      copyTextFallback(rows.join('\n'), 'Excel tablosu kopyalandı! Excel\'de A1 hücresine Ctrl+V ile yapıştırabilirsiniz.');
+    }
+
     function exportToPdf() {
       const bomDetails = document.getElementById('bom-table-details');
       if (bomDetails) bomDetails.open = true;
-      showToast("Yazdırma ekranında hedef olarak 'PDF olarak kaydet' seçeneğini kullanabilirsiniz.", "info");
-      setTimeout(() => {
-        window.print();
-      }, 250);
+      setTimeout(() => window.print(), 200);
     }
 
-    // Panoya Kopyalama Yardımcıları (iFrame uyumlu execCommand)
     function copyTextFallback(text, successMsg) {
       const ta = document.createElement('textarea');
       ta.value = text;
@@ -1324,43 +1488,28 @@
       ta.style.opacity = '0';
       document.body.appendChild(ta);
       ta.select();
-      try {
-        document.execCommand('copy');
-        showToast(successMsg, 'success');
-      } catch (e) {
-        showToast('Kopyalama sırasında bir hata oluştu.', 'warn');
-      }
+      try { document.execCommand('copy'); showToast(successMsg, 'success'); }
+      catch (e) { showToast('Kopyalama hatası.', 'warn'); }
       document.body.removeChild(ta);
-    }
-
-    function copyExcelFormula() {
-      const text = document.getElementById('excel-formula-display').textContent.trim();
-      copyTextFallback(text, 'Türkçe Excel formülü panoya kopyalandı.');
     }
 
     function copySummaryTable() {
       if (!latestCalcSummary) return;
       const lines = ['Teleset Bant Tüketimi & BOM Hesap Özeti'];
       latestCalcSummary.computedZones.forEach(({ zone, res }) => {
-        const desc = zone.method === 'spot'
-          ? `${zone.spotCount || 1} nokta × ${zone.spotTurns || 2} tur`
-          : `L=${res.L}mm, P=${res.P ? res.P.toFixed(2) : '-'}mm`;
-        lines.push(`- ${zone.name} (${res.codeBadge}): D=${res.D}mm, ${desc} -> ${fmtTR(res.spiralM, 3)} m`);
+        const desc = zone.method === 'spot' ? `${zone.spotCount || 1} nokta × ${zone.spotTurns || 2} tur` : `L=${res.L}mm, P=${res.P ? res.P.toFixed(2) : '-'}mm`;
+        lines.push(`- ${zone.name} (${res.codeBadge}): D=${res.D}mm, ${desc} -> ${fmtTR(res.zoneTotalM, 3)} m`);
       });
-      lines.push(`Ek Sabitleme (${latestCalcSummary.globalN} tur): ${fmtTR(latestCalcSummary.fixingM, 3)} m`);
       lines.push(`Net Toplam: ${fmtTR(latestCalcSummary.netTotalM, 3)} m`);
       lines.push(`%${fmtTR(latestCalcSummary.scrapPct, 1)} Fire Dahil BOM: ${fmtTR(latestCalcSummary.grossTotalM, 3)} m/adet`);
-      copyTextFallback(lines.join('\n'), 'BOM hesap özeti panoya kopyalandı.');
+      copyTextFallback(lines.join('\n'), 'Hesap özeti panoya kopyalandı.');
     }
 
-    // =========================================================================
-    // SEKME 2: SERİ ÜRETİM & MALİYET HESAPLAYICI (Örnek 6)
-    // =========================================================================
+    // Sekme 2
     function syncUnitFromCalc() {
       if (latestCalcSummary) {
-        document.getElementById('prod-unit-m').value = latestCalcSummary.grossTotalM.toFixed(4);
+        document.getElementById('prod-unit-m').value = latestCalcSummary.grossTotalM.toFixed(5);
         calcProduction();
-        showToast('Birim tüketim 1. sekmeden güncellendi.', 'success');
       }
     }
 
@@ -1370,7 +1519,6 @@
       document.getElementById('prod-roll-len').value = '25';
       document.getElementById('prod-price').value = '0.08';
       calcProduction();
-      showToast('Örnek 6 verileri yüklendi (612 rulo, 1.222,50 €).', 'success');
     }
 
     function calcProduction() {
@@ -1380,117 +1528,95 @@
       const price = Math.max(0, parseFloat(document.getElementById('prod-price').value) || 0);
 
       const totalMeters = unitM * qty;
-      const rollsNeeded = Math.ceil(totalMeters / rollLen);
-      const unitCost = unitM * price;
-      const totalCost = totalMeters * price;
-
+      const rolls = Math.ceil(totalMeters / rollLen);
       document.getElementById('prod-res-meters').textContent = `${fmtTR(totalMeters, 2)} m`;
-      document.getElementById('prod-res-rolls').textContent = `${rollsNeeded.toLocaleString('tr-TR')} rulo`;
-      document.getElementById('prod-res-unit-cost').textContent = `${fmtTR(unitCost, 4)} €/adet`;
-      document.getElementById('prod-res-total-cost').textContent = `${fmtTR(totalCost, 2)} €`;
+      document.getElementById('prod-res-rolls').textContent = `${rolls.toLocaleString('tr-TR')} rulo`;
+      document.getElementById('prod-res-roll-cost').textContent = `Rulo alım tutarı: ${fmtTR(rolls * rollLen * price, 2)} €`;
+      document.getElementById('prod-res-unit-cost').textContent = `${fmtTR(unitM * price, 4)} €/adet`;
+      document.getElementById('prod-res-total-cost').textContent = `${fmtTR(totalMeters * price, 2)} €`;
     }
 
-    // =========================================================================
-    // SEKME 3: 10 NUMUNE DOĞRULAMA (Örnek 7) & TERS ÇAP BULMA (Örnek 5)
-    // =========================================================================
+    // Sekme 3
+    function syncTheoFromCalc() {
+      if (latestCalcSummary) {
+        document.getElementById('verify-theo').value = latestCalcSummary.netTotalM.toFixed(3);
+        calcVerification();
+      }
+    }
+
     function renderSampleInputs() {
       const grid = document.getElementById('sample-inputs-grid');
       grid.innerHTML = '';
       defaultSamples.forEach((val, idx) => {
-        const div = document.createElement('div');
-        div.innerHTML = `
-          <label class="block text-[10px] font-semibold text-steel-500 mb-0.5">Numune #${idx + 1}</label>
-          <input type="number" step="0.001" min="0" value="${val}" oninput="calcVerification()"
-            class="sample-val-input w-full font-mono text-xs bg-steel-50 border border-steel-300 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-tealeng-500">
+        grid.innerHTML += `
+          <div>
+            <label class="block text-[10px] font-semibold text-steel-500 mb-0.5">Numune #${idx + 1}</label>
+            <input type="number" step="0.001" min="0" value="${val}" oninput="calcVerification()"
+              class="sample-val-input w-full font-mono text-xs bg-steel-50 border border-steel-300 rounded-lg px-2 py-1.5">
+          </div>
         `;
-        grid.appendChild(div);
       });
     }
 
     function parsePastedSamples() {
       const raw = document.getElementById('paste-samples-input').value.trim();
-      if (!raw) return;
       const matches = raw.match(/\d+[.,]?\d*/g);
-      if (!matches || matches.length === 0) {
-        showToast('Geçerli sayı bulunamadı.', 'warn');
-        return;
-      }
+      if (!matches) return;
       const inputs = document.querySelectorAll('.sample-val-input');
-      matches.slice(0, inputs.length).forEach((m, i) => {
-        inputs[i].value = parseFloat(m.replace(',', '.'));
-      });
+      matches.slice(0, inputs.length).forEach((m, i) => { inputs[i].value = parseFloat(m.replace(',', '.')); });
       calcVerification();
-      showToast(`${Math.min(matches.length, inputs.length)} adet numune ölçümü kutulara aktarıldı.`, 'success');
     }
 
     function loadSampleExample7() {
       document.getElementById('verify-theo').value = '1.550';
-      const inputs = document.querySelectorAll('.sample-val-input');
-      inputs.forEach((inp, i) => {
-        inp.value = defaultSamples[i];
-      });
+      document.querySelectorAll('.sample-val-input').forEach((inp, i) => { inp.value = defaultSamples[i]; });
       calcVerification();
-      showToast('Örnek 7 verileri yüklendi (Ortalama: 1,605 m, Sapma: %3,55).', 'success');
     }
 
     function calcVerification() {
       const theo = Math.max(0.001, parseFloat(document.getElementById('verify-theo').value) || 1.550);
-      const inputs = document.querySelectorAll('.sample-val-input');
-      const vals = [];
-      inputs.forEach(inp => {
-        const v = parseFloat(inp.value);
-        if (!isNaN(v) && v > 0) vals.push(v);
-      });
+      const vals = Array.from(document.querySelectorAll('.sample-val-input')).map(i => parseFloat(i.value)).filter(v => !isNaN(v) && v > 0);
+      if (!vals.length) return;
 
-      if (vals.length === 0) return;
-
-      const sum = vals.reduce((a, b) => a + b, 0);
-      const avg = sum / vals.length;
-      const minV = Math.min(...vals);
-      const maxV = Math.max(...vals);
-      const variance = vals.reduce((acc, v) => acc + Math.pow(v - avg, 2), 0) / vals.length;
-      const stdDev = Math.sqrt(variance);
+      const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
+      const stdDev = Math.sqrt(vals.reduce((acc, v) => acc + Math.pow(v - avg, 2), 0) / vals.length);
       const devPct = ((avg - theo) / theo) * 100;
 
       document.getElementById('verify-avg').textContent = `${fmtTR(avg, 3)} m/adet`;
       const devEl = document.getElementById('verify-dev');
-      const sign = devPct >= 0 ? '+' : '';
-      devEl.textContent = `${sign}%${fmtTR(devPct, 2)}`;
+      devEl.textContent = `${devPct >= 0 ? '+' : ''}%${fmtTR(devPct, 2)}`;
       devEl.className = `text-xl font-mono font-bold ${Math.abs(devPct) <= 5 ? 'text-emerald-600' : 'text-amber-600'}`;
-
-      document.getElementById('verify-range').textContent = `${fmtTR(minV, 3)} – ${fmtTR(maxV, 3)} m (σ=${fmtTR(stdDev, 3)})`;
+      document.getElementById('verify-range').textContent = `${fmtTR(Math.min(...vals), 3)} – ${fmtTR(Math.max(...vals), 3)} m (σ=${fmtTR(stdDev, 3)})`;
 
       const box = document.getElementById('verify-decision-box');
       if (Math.abs(devPct) <= 5) {
         box.className = "mt-4 p-3.5 rounded-lg border border-emerald-300 bg-emerald-50 text-emerald-900 text-xs leading-relaxed";
-        box.innerHTML = `<strong>BOM Kararı (Kabul Aralığında):</strong> Fiili ortalama (<strong>${fmtTR(avg, 3)} m</strong>) teorik hedeften <strong>%${fmtTR(Math.abs(devPct), 2)}</strong> sapma göstermektedir. Ölçümde kesim ve sabitleme zaten dahilse fire ikinci kez eklenmemelidir.`;
+        box.innerHTML = `<strong>BOM Kararı (Kabul Aralığında):</strong> Fiili ortalama (<strong>${fmtTR(avg, 3)} m</strong>) teorik hedeften <strong>%${fmtTR(Math.abs(devPct), 2)}</strong> sapmaktadır. Ölçümde kesim ve sabitleme dahilse fire ikinci kez eklenmez.`;
       } else {
         box.className = "mt-4 p-3.5 rounded-lg border border-amber-300 bg-amber-50 text-amber-900 text-xs leading-relaxed";
-        box.innerHTML = `<strong>BOM Kararı (İnceleme Gerekli):</strong> Sapma oranı <strong>%${fmtTR(Math.abs(devPct), 2)}</strong> seviyesindedir. Demet çapı sıkıştırması, gerçek sarım adımı ve uç sabitleme turları sahada yeniden doğrulanmalıdır.`;
+        box.innerHTML = `<strong>BOM Kararı (İnceleme Gerekli):</strong> Sapma <strong>%${fmtTR(Math.abs(devPct), 2)}</strong> seviyesindedir. Demet çapı sıkıştırması, gerçek adım ve uç sabitlemeleri sahada tekrar doğrulanmalıdır.`;
       }
     }
 
     function calcReverseDiameter() {
       const L = Math.max(1, parseFloat(document.getElementById('rev-L').value) || 710);
       const P = Math.max(0.1, parseFloat(document.getElementById('rev-P').value) || 15);
-      const Tm = Math.max(0.001, parseFloat(document.getElementById('rev-T-m').value) || 1.665);
-      const Tmm = Tm * 1000;
-
+      const Tmm = (Math.max(0.001, parseFloat(document.getElementById('rev-T-m').value) || 1.665)) * 1000;
       const outEl = document.getElementById('rev-D-out');
       if (Tmm <= L) {
         outEl.textContent = 'Geçersiz (T ≤ L)';
         outEl.className = 'text-xl font-mono font-bold text-amber-400 mt-1';
         return;
       }
-
       const D = (P / Math.PI) * Math.sqrt(Math.pow(Tmm / L, 2) - 1);
       outEl.textContent = `${fmtTR(D, 2)} mm`;
       outEl.className = 'text-3xl font-mono font-bold text-cyan-300 mt-1';
     }
 
-    // Sayfa Yüklendiğinde Başlat
     window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('meta-date').value = new Date().toLocaleDateString('tr-TR');
       renderSampleInputs();
+      document.getElementById('preset-select').value = 'ex4';
       loadSelectedPreset();
       calcProduction();
       calcVerification();
