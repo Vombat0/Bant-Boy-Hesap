@@ -562,6 +562,10 @@
       return num.toLocaleString('tr-TR', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
     }
 
+    function toTRNum(num) {
+      return String(num).replace('.', ',');
+    }
+
     function escapeHtml(str) {
       return String(str).replace(/[&<>"']/g, m => ({ '&': '&', '<': '<', '>': '>', '"': '"', "'": ''' }[m]));
     }
@@ -621,7 +625,7 @@
       showToast('Temiz tek bölgeli başlangıç şablonuna sıfırlandı.', 'info');
     }
 
-    function loadSelectedPreset() {
+    function loadSelectedPreset(silent = false) {
       const val = document.getElementById('preset-select').value;
       selectedUnfoldIndex = 0;
       if (val === 'clean') {
@@ -662,7 +666,7 @@
       document.getElementById('scrap-mode').value = 'net';
       renderZones();
       recalculateAll();
-      showToast('Seçilen şablon yüklendi.', 'success');
+      if (!silent) showToast('Seçilen şablon yüklendi.', 'success');
     }
 
     function addZone() {
@@ -1143,54 +1147,52 @@
     function renderBreakdownTable(computedZones, globalN, fixingD, globalFixingM, netTotalM, scrapPct, grossTotalM) {
       const tbody = document.getElementById('breakdown-tbody');
       if (!tbody) return;
-      tbody.innerHTML = '';
+      let rowsHtml = '';
 
       computedZones.forEach(({ zone, res }) => {
         const isSpot = zone.method === 'spot';
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td class="py-2.5 px-4 font-sans font-semibold text-navy-900">${escapeHtml(zone.name)}</td>
-          <td class="py-2.5 px-4 font-sans text-xs text-steel-700">${res.codeBadge}</td>
-          <td class="py-2.5 px-4 text-right">${fmtTR(res.D, 1)}</td>
-          <td class="py-2.5 px-4 text-right">${isSpot ? `${zone.spotCount || 1} nokta × ${zone.spotTurns || 2} tur` : `${fmtTR(res.L, 0)} mm`}</td>
-          <td class="py-2.5 px-4 text-right">${res.P !== null ? fmtTR(res.P, 2) : '—'}</td>
-          <td class="py-2.5 px-4 text-right">${fmtTR(res.N, 2)}</td>
-          <td class="py-2.5 px-4 text-right font-semibold text-navy-900">${fmtTR(res.spiralM, 3)}</td>
+        rowsHtml += `
+          <tr>
+            <td class="py-2.5 px-4 font-sans font-semibold text-navy-900">${escapeHtml(zone.name)}</td>
+            <td class="py-2.5 px-4 font-sans text-xs text-steel-700">${res.codeBadge}</td>
+            <td class="py-2.5 px-4 text-right">${fmtTR(res.D, 1)}</td>
+            <td class="py-2.5 px-4 text-right">${isSpot ? `${zone.spotCount || 1} nokta × ${zone.spotTurns || 2} tur` : `${fmtTR(res.L, 0)} mm`}</td>
+            <td class="py-2.5 px-4 text-right">${res.P !== null ? fmtTR(res.P, 2) : '—'}</td>
+            <td class="py-2.5 px-4 text-right">${fmtTR(res.N, 2)}</td>
+            <td class="py-2.5 px-4 text-right font-semibold text-navy-900">${fmtTR(res.spiralM, 3)}</td>
+          </tr>
         `;
-        tbody.appendChild(tr);
 
         if (res.zoneExtraTurns > 0) {
-          const trZFix = document.createElement('tr');
-          trZFix.className = "bg-steel-50/50 text-xs";
-          trZFix.innerHTML = `
-            <td class="py-2 px-4 font-sans text-steel-600 pl-8">↳ ${escapeHtml(zone.name)} Ek Sabitleme</td>
-            <td class="py-2 px-4 font-sans text-steel-500">Çevresel</td>
-            <td class="py-2 px-4 text-right text-steel-600">${fmtTR(res.D, 1)}</td>
-            <td class="py-2 px-4 text-right text-steel-400">—</td>
-            <td class="py-2 px-4 text-right text-steel-400">—</td>
-            <td class="py-2 px-4 text-right">${fmtTR(res.zoneExtraTurns, 1)}</td>
-            <td class="py-2 px-4 text-right font-semibold">${fmtTR(res.zoneExtraMm / 1000, 3)}</td>
+          rowsHtml += `
+            <tr class="bg-steel-50/50 text-xs">
+              <td class="py-2 px-4 font-sans text-steel-600 pl-8">↳ ${escapeHtml(zone.name)} Ek Sabitleme</td>
+              <td class="py-2 px-4 font-sans text-steel-500">Çevresel</td>
+              <td class="py-2 px-4 text-right text-steel-600">${fmtTR(res.D, 1)}</td>
+              <td class="py-2 px-4 text-right text-steel-400">—</td>
+              <td class="py-2 px-4 text-right text-steel-400">—</td>
+              <td class="py-2 px-4 text-right">${fmtTR(res.zoneExtraTurns, 1)}</td>
+              <td class="py-2 px-4 text-right font-semibold">${fmtTR(res.zoneExtraMm / 1000, 3)}</td>
+            </tr>
           `;
-          tbody.appendChild(trZFix);
         }
       });
 
       if (globalN > 0) {
-        const trFix = document.createElement('tr');
-        trFix.className = "bg-steel-50/60";
-        trFix.innerHTML = `
-          <td class="py-2.5 px-4 font-sans text-steel-700">Genel Uç Sabitleme Turları</td>
-          <td class="py-2.5 px-4 font-sans text-xs text-steel-500">Çevresel (n × π × D)</td>
-          <td class="py-2.5 px-4 text-right text-steel-600">${fmtTR(fixingD, 1)}</td>
-          <td class="py-2.5 px-4 text-right text-steel-400">—</td>
-          <td class="py-2.5 px-4 text-right text-steel-400">—</td>
-          <td class="py-2.5 px-4 text-right">${fmtTR(globalN, 1)}</td>
-          <td class="py-2.5 px-4 text-right font-semibold text-navy-900">${fmtTR(globalFixingM, 3)}</td>
+        rowsHtml += `
+          <tr class="bg-steel-50/60">
+            <td class="py-2.5 px-4 font-sans text-steel-700">Genel Uç Sabitleme Turları</td>
+            <td class="py-2.5 px-4 font-sans text-xs text-steel-500">Çevresel (n × π × D)</td>
+            <td class="py-2.5 px-4 text-right text-steel-600">${fmtTR(fixingD, 1)}</td>
+            <td class="py-2.5 px-4 text-right text-steel-400">—</td>
+            <td class="py-2.5 px-4 text-right text-steel-400">—</td>
+            <td class="py-2.5 px-4 text-right">${fmtTR(globalN, 1)}</td>
+            <td class="py-2.5 px-4 text-right font-semibold text-navy-900">${fmtTR(globalFixingM, 3)}</td>
+          </tr>
         `;
-        tbody.appendChild(trFix);
       }
 
-      tbody.innerHTML += `
+      rowsHtml += `
         <tr class="bg-steel-100 font-bold border-t-2 border-steel-300">
           <td colspan="6" class="py-2.5 px-4 font-sans text-right text-navy-900">Net Toplam Tüketim:</td>
           <td class="py-2.5 px-4 text-right text-navy-900">${fmtTR(netTotalM, 3)} m</td>
@@ -1200,6 +1202,8 @@
           <td class="py-3 px-4 text-right text-base">${fmtTR(grossTotalM, 3)} m/adet</td>
         </tr>
       `;
+
+      tbody.innerHTML = rowsHtml;
     }
 
     function drawDetailedHarnessSVG(computedZones, globalN) {
@@ -1210,6 +1214,7 @@
       const usableW = 768;
       const centerY = 122;
       const maxBarH = 62;
+      const topOfMaxBar = centerY - maxBarH / 2;
       const count = computedZones.length;
       const maxD = Math.max(...computedZones.map(item => Math.max(2, item.res.D)));
 
@@ -1317,10 +1322,11 @@
         zonesLayer += `<rect x="${currentX}" y="${y}" width="${w}" height="${h}" rx="3" fill="none" stroke="${isSelected ? '#007791' : '#0f172a'}" stroke-width="${isSelected ? '2.4' : '1.3'}" />`;
         zonesLayer += `</g>`;
 
+        // Sabit 2 kademeli üst etiket hizalaması (çakışmasız)
         const midX = currentX + w / 2;
-        const boxW = Math.min(132, Math.max(96, w - 6));
-        const staggerY = (idx % 2 === 1 && count > 2 && w < 145) ? 34 : 0;
-        const boxY = Math.max(6, y - 48 - staggerY);
+        const boxW = Math.min(134, Math.max(94, w - 6));
+        const useUpperRow = count > 2 && idx % 2 === 1 && w < 145;
+        const boxY = useUpperRow ? 6 : (topOfMaxBar - 44);
         const shortName = zone.name.length > 14 ? zone.name.slice(0, 13) + '…' : zone.name;
         const subText = zone.method === 'spot'
           ? `Ø${fmtTR(res.D, 1)} | ${zone.spotCount}×${zone.spotTurns}t`
@@ -1400,15 +1406,15 @@
 
       if (zone.method === 'spot') {
         svg.innerHTML = `
-          <rect x="140" y="20" width="44" height="95" fill="#e0f2fe" stroke="#64748b" stroke-width="1.5" />
-          <line x1="162" y1="20" x2="162" y2="115" stroke="#007791" stroke-width="6" />
-          <line x1="126" y1="20" x2="126" y2="115" stroke="#0d192b" stroke-width="1.2" />
-          <text x="118" y="72" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="10.5" font-weight="600" fill="#0d192b">C = ${fmtTR(res.C, 2)} mm</text>
-          <text x="162" y="135" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600" fill="#0d192b">P = 0 (Çevresel)</text>
-          <rect x="210" y="34" width="285" height="66" rx="6" fill="#ffffff" stroke="#cbd5e1" />
-          <text x="224" y="54" font-family="Inter, sans-serif" font-size="11" font-weight="700" fill="#007791">Nokta Bant (NB) – Dik Sarım</text>
-          <text x="224" y="73" font-family="JetBrains Mono, monospace" font-size="11.5" font-weight="700" fill="#0d192b">1 tur = ${fmtTR(res.C, 2)} mm</text>
-          <text x="224" y="90" font-family="Inter, sans-serif" font-size="10" fill="#475569">${zone.spotCount || 1} nokta × ${zone.spotTurns || 2} tur = ${fmtTR(res.spiralM, 3)} m</text>
+          <rect x="135" y="20" width="44" height="95" fill="#e0f2fe" stroke="#64748b" stroke-width="1.5" />
+          <line x1="157" y1="20" x2="157" y2="115" stroke="#007791" stroke-width="6" />
+          <line x1="121" y1="20" x2="121" y2="115" stroke="#0d192b" stroke-width="1.2" />
+          <text x="113" y="72" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="10.5" font-weight="600" fill="#0d192b">C = ${fmtTR(res.C, 2)} mm</text>
+          <text x="157" y="135" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600" fill="#0d192b">P = 0 (Çevresel)</text>
+          <rect x="205" y="34" width="290" height="66" rx="6" fill="#ffffff" stroke="#cbd5e1" />
+          <text x="219" y="54" font-family="Inter, sans-serif" font-size="11" font-weight="700" fill="#007791">Nokta Bant (NB) – Dik Sarım</text>
+          <text x="219" y="73" font-family="JetBrains Mono, monospace" font-size="11.5" font-weight="700" fill="#0d192b">1 tur = ${fmtTR(res.C, 2)} mm</text>
+          <text x="219" y="90" font-family="Inter, sans-serif" font-size="10" fill="#475569">${zone.spotCount || 1} nokta × ${zone.spotTurns || 2} tur = ${fmtTR(res.spiralM, 3)} m</text>
         `;
         return;
       }
@@ -1416,7 +1422,12 @@
       const C = res.C || 31.42;
       const P = res.P || 15;
       const hyp = res.turnLength || Math.sqrt(C * C + P * P);
-      const boxH = 95, boxW = Math.round(boxH * Math.min(2.1, Math.max(0.45, P / C))), x0 = 130, y0 = 20;
+      const boxH = 95;
+      const boxW = Math.round(boxH * Math.min(1.45, Math.max(0.45, P / C)));
+      const x0 = 122;
+      const y0 = 20;
+      const cardX = x0 + boxW + 16;
+      const cardW = Math.min(228, 508 - cardX);
 
       svg.innerHTML = `
         <rect x="${x0}" y="${y0}" width="${boxW}" height="${boxH}" fill="#e0f2fe" stroke="#64748b" stroke-width="1.5" />
@@ -1425,10 +1436,10 @@
         <text x="${x0 - 18}" y="${y0 + boxH / 2 + 4}" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600" fill="#0d192b">C = ${fmtTR(C, 2)} mm</text>
         <line x1="${x0}" y1="${y0 + boxH + 12}" x2="${x0 + boxW}" y2="${y0 + boxH + 12}" stroke="#0d192b" stroke-width="1.2" />
         <text x="${x0 + boxW / 2}" y="${y0 + boxH + 26}" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600" fill="#0d192b">P = ${fmtTR(P, 2)} mm</text>
-        <rect x="${x0 + boxW + 14}" y="${y0 + 18}" width="215" height="58" rx="6" fill="#ffffff" stroke="#cbd5e1" />
-        <text x="${x0 + boxW + 24}" y="${y0 + 36}" font-family="Inter, sans-serif" font-size="10.5" font-weight="600" fill="#007791">1 turdaki bant √(C² + P²):</text>
-        <text x="${x0 + boxW + 24}" y="${y0 + 53}" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700" fill="#0d192b">${fmtTR(hyp, 2)} mm / tur</text>
-        <text x="${x0 + boxW + 24}" y="${y0 + 68}" font-family="Inter, sans-serif" font-size="9.5" fill="#64748b">Toplam: ${fmtTR(res.N, 2)} tur → ${fmtTR(res.spiralM, 3)} m</text>
+        <rect x="${cardX}" y="${y0 + 18}" width="${cardW}" height="58" rx="6" fill="#ffffff" stroke="#cbd5e1" />
+        <text x="${cardX + 10}" y="${y0 + 36}" font-family="Inter, sans-serif" font-size="10.5" font-weight="600" fill="#007791">1 turdaki bant √(C² + P²):</text>
+        <text x="${cardX + 10}" y="${y0 + 53}" font-family="JetBrains Mono, monospace" font-size="12" font-weight="700" fill="#0d192b">${fmtTR(hyp, 2)} mm / tur</text>
+        <text x="${cardX + 10}" y="${y0 + 68}" font-family="Inter, sans-serif" font-size="9.5" fill="#64748b">Toplam: ${fmtTR(res.N, 2)} tur → ${fmtTR(res.spiralM, 3)} m</text>
       `;
     }
 
@@ -1441,21 +1452,25 @@
       if (computedZones.length === 1) {
         const { zone, res } = computedZones[0];
         const totalN = (zone.zoneTurns || 0) + globalN;
-        const dStr = String(res.D).replace('.', ',');
+        const dStr = toTRNum(res.D);
         if (zone.method === 'spot') {
-          const spotN = String((zone.spotCount || 1) * (zone.spotTurns || 2) + totalN).replace('.', ',');
+          const spotN = toTRNum((zone.spotCount || 1) * (zone.spotTurns || 2) + totalN);
           el.textContent = `=(${spotN}*Pİ()*${dStr})${scrapExpr}/1000`;
+        } else if (res.P === null) {
+          el.textContent = `// GEÇERSİZ GEOMETRİ: S ≥ π·D — Bindirme oranını artırın veya P girin.`;
         } else {
-          const pVal = res.P !== null ? res.P.toFixed(2).replace('.', ',') : '15';
-          const nStr = String(totalN).replace('.', ',');
-          el.textContent = `=(${res.L}/${pVal}*KAREKÖK((Pİ()*${dStr})^2+${pVal}^2)+${nStr}*Pİ()*${dStr})${scrapExpr}/1000`;
+          const pVal = res.P.toFixed(2).replace('.', ',');
+          el.textContent = `=(${toTRNum(res.L)}/${pVal}*KAREKÖK((Pİ()*${dStr})^2+${pVal}^2)+${toTRNum(totalN)}*Pİ()*${dStr})${scrapExpr}/1000`;
         }
       } else {
         const lines = computedZones.map(({ zone, res }, i) => {
           const row = i + 2;
           if (zone.method === 'spot') {
             const spotN = (zone.spotCount || 1) * (zone.spotTurns || 2) + (zone.zoneTurns || 0);
-            return `F${row} (${zone.name} - NB): =(D${row}*Pİ()*A${row})/1000   [D=${res.D}; n=${spotN}]`;
+            return `F${row} (${zone.name} - NB): =(D${row}*Pİ()*A${row})/1000   [D=${toTRNum(res.D)}; n=${toTRNum(spotN)}]`;
+          }
+          if (res.P === null) {
+            return `F${row} (${zone.name}): // GEÇERSİZ GEOMETRİ (S ≥ π·D)`;
           }
           return `F${row} (${zone.name}): =(B${row}/C${row}*KAREKÖK((Pİ()*A${row})^2+C${row}^2)+D${row}*Pİ()*A${row})/1000`;
         });
@@ -1467,7 +1482,7 @@
     }
 
     function copyExcelFormula() {
-      copyTextFallback(document.getElementById('excel-formula-display').textContent.trim(), 'Excel formülü panoya kopyalandı.');
+      copyToClipboard(document.getElementById('excel-formula-display').textContent.trim(), 'Excel formülü panoya kopyalandı.');
     }
 
     function copyExcelTSV() {
@@ -1479,30 +1494,42 @@
 
       computedZones.forEach(({ zone, res }, i) => {
         const r = i + 2;
-        const dStr = String(res.D).replace('.', ',');
+        const dStr = toTRNum(res.D);
         const fireCell = i === 0 ? fDec : '';
         if (zone.method === 'spot') {
-          const nSpot = String((zone.spotCount || 1) * (zone.spotTurns || 2) + (zone.zoneTurns || 0)).replace('.', ',');
+          const nSpot = toTRNum((zone.spotCount || 1) * (zone.spotTurns || 2) + (zone.zoneTurns || 0));
           rows.push(`${dStr}\t0\t0\t${nSpot}\t${fireCell}\t=(D${r}*Pİ()*A${r})/1000\t${zone.name} (NB)`);
+        } else if (res.P === null) {
+          rows.push(`${dStr}\t${toTRNum(res.L)}\tGEÇERSİZ\t${toTRNum(zone.zoneTurns || 0)}\t${fireCell}\t0\t${zone.name} (S>=πD Hatası)`);
         } else {
-          const pStr = res.P !== null ? res.P.toFixed(4).replace('.', ',') : '15';
-          const nStr = String(zone.zoneTurns || 0).replace('.', ',');
-          rows.push(`${dStr}\t${res.L}\t${pStr}\t${nStr}\t${fireCell}\t=(B${r}/C${r}*KAREKÖK((Pİ()*A${r})^2+C${r}^2)+D${r}*Pİ()*A${r})/1000\t${zone.name} (${res.codeBadge})`);
+          const pStr = res.P.toFixed(4).replace('.', ',');
+          const nStr = toTRNum(zone.zoneTurns || 0);
+          rows.push(`${dStr}\t${toTRNum(res.L)}\t${pStr}\t${nStr}\t${fireCell}\t=(B${r}/C${r}*KAREKÖK((Pİ()*A${r})^2+C${r}^2)+D${r}*Pİ()*A${r})/1000\t${zone.name} (${res.codeBadge})`);
         }
       });
 
       const fixRow = computedZones.length + 2;
-      rows.push(`${String(effectiveFixingD).replace('.', ',')}\t0\t0\t${String(globalN).replace('.', ',')}\t\t=(D${fixRow}*Pİ()*A${fixRow})/1000\tGenel Uç Sabitleme`);
+      rows.push(`${toTRNum(effectiveFixingD)}\t0\t0\t${toTRNum(globalN)}\t\t=(D${fixRow}*Pİ()*A${fixRow})/1000\tGenel Uç Sabitleme`);
       rows.push(`\t\t\t\tNet Toplam:\t=TOPLA(F2:F${fixRow})\tFiresiz (m)`);
       rows.push(`\t\t\t\tBOM (Fire Dahil):\t=F${fixRow + 1}${scrapExpr}\tm/adet`);
 
-      copyTextFallback(rows.join('\n'), "Excel tablosu kopyalandı! Excel'de A1 hücresine Ctrl+V ile yapıştırabilirsiniz.");
+      copyToClipboard(rows.join('\n'), "Excel tablosu kopyalandı! Excel'de A1 hücresine Ctrl+V ile yapıştırabilirsiniz.");
     }
 
     function exportToPdf() {
       const bomDetails = document.getElementById('bom-table-details');
       if (bomDetails) bomDetails.open = true;
       setTimeout(() => window.print(), 200);
+    }
+
+    function copyToClipboard(text, successMsg) {
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text)
+          .then(() => showToast(successMsg, 'success'))
+          .catch(() => copyTextFallback(text, successMsg));
+      } else {
+        copyTextFallback(text, successMsg);
+      }
     }
 
     function copyTextFallback(text, successMsg) {
@@ -1526,7 +1553,7 @@
       });
       lines.push(`Net Toplam: ${fmtTR(latestCalcSummary.netTotalM, 3)} m`);
       lines.push(`%${fmtTR(latestCalcSummary.scrapPct, 1)} Fire Dahil BOM: ${fmtTR(latestCalcSummary.grossTotalM, 3)} m/adet`);
-      copyTextFallback(lines.join('\n'), 'Hesap özeti panoya kopyalandı.');
+      copyToClipboard(lines.join('\n'), 'Hesap özeti panoya kopyalandı.');
     }
 
     // Sekme 2
@@ -1571,16 +1598,13 @@
     function renderSampleInputs() {
       const grid = document.getElementById('sample-inputs-grid');
       if (!grid) return;
-      grid.innerHTML = '';
-      defaultSamples.forEach((val, idx) => {
-        grid.innerHTML += `
-          <div>
-            <label class="block text-[10px] font-semibold text-steel-500 mb-0.5">Numune #${idx + 1}</label>
-            <input type="number" step="0.001" min="0" value="${val}" oninput="calcVerification()"
-              class="sample-val-input w-full font-mono text-xs bg-steel-50 border border-steel-300 rounded-lg px-2 py-1.5">
-          </div>
-        `;
-      });
+      grid.innerHTML = defaultSamples.map((val, idx) => `
+        <div>
+          <label class="block text-[10px] font-semibold text-steel-500 mb-0.5">Numune #${idx + 1}</label>
+          <input type="number" step="0.001" min="0" value="${val}" oninput="calcVerification()"
+            class="sample-val-input w-full font-mono text-xs bg-steel-50 border border-steel-300 rounded-lg px-2 py-1.5">
+        </div>
+      `).join('');
     }
 
     function parsePastedSamples() {
@@ -1601,7 +1625,16 @@
     function calcVerification() {
       const theo = Math.max(0.001, parseFloat(document.getElementById('verify-theo').value) || 1.550);
       const vals = Array.from(document.querySelectorAll('.sample-val-input')).map(i => parseFloat(i.value)).filter(v => !isNaN(v) && v > 0);
-      if (!vals.length) return;
+      const box = document.getElementById('verify-decision-box');
+
+      if (!vals.length) {
+        document.getElementById('verify-avg').textContent = '—';
+        document.getElementById('verify-dev').textContent = '—';
+        document.getElementById('verify-range').textContent = '—';
+        box.className = "mt-4 p-3.5 rounded-lg border border-steel-200 bg-steel-50 text-steel-600 text-xs";
+        box.textContent = 'Karşılaştırma için en az bir geçerli numune ölçümü girin.';
+        return;
+      }
 
       const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
       const stdDev = Math.sqrt(vals.reduce((acc, v) => acc + Math.pow(v - avg, 2), 0) / vals.length);
@@ -1613,7 +1646,6 @@
       devEl.className = `text-xl font-mono font-bold ${Math.abs(devPct) <= 5 ? 'text-emerald-600' : 'text-amber-600'}`;
       document.getElementById('verify-range').textContent = `${fmtTR(Math.min(...vals), 3)} – ${fmtTR(Math.max(...vals), 3)} m (σ=${fmtTR(stdDev, 3)})`;
 
-      const box = document.getElementById('verify-decision-box');
       if (Math.abs(devPct) <= 5) {
         box.className = "mt-4 p-3.5 rounded-lg border border-emerald-300 bg-emerald-50 text-emerald-900 text-xs leading-relaxed";
         box.innerHTML = `<strong>BOM Kararı (Kabul Aralığında):</strong> Fiili ortalama (<strong>${fmtTR(avg, 3)} m</strong>) teorik hedeften <strong>%${fmtTR(Math.abs(devPct), 2)}</strong> sapmaktadır. Ölçümde kesim ve sabitleme dahilse fire ikinci kez eklenmez.`;
@@ -1649,13 +1681,13 @@
       bindClick('btn-add-zone', addZone);
       bindClick('btn-add-zone-bottom', addZone);
       bindClick('btn-reset-zones', resetToCleanSingleZone);
-      bindClick('btn-load-preset', loadSelectedPreset);
+      bindClick('btn-load-preset', () => loadSelectedPreset(false));
       bindClick('btn-export-pdf', exportToPdf);
 
       renderSampleInputs();
       const presetEl = document.getElementById('preset-select');
       if (presetEl) presetEl.value = 'ex4';
-      loadSelectedPreset();
+      loadSelectedPreset(true);
       calcProduction();
       calcVerification();
       calcReverseDiameter();
